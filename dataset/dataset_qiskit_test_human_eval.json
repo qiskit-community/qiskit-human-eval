@@ -673,11 +673,11 @@
     },
     {
         "task_id": "qiskitHumanEval/84",
-        "prompt": "from qiskit import pulse\nfrom qiskit_ibm_runtime.fake_provider import FakeBelemV2\nfrom qiskit.pulse import DriveChannel, Gaussian\ndef define_gaussian_pulse_schedule():\n    \"\"\" Using Qiskit Pulse, create a Gaussian pulse schedule on drive channel 0 with a duration of 128 and name this schedule 'gaussian_pulse_schedule'. Configure it for the FakeBelem backend and return the resulting pulse schedule.\n    \"\"\"",
-        "canonical_solution": "\n    backend = FakeBelemV2()\n    gaussian_pulse = Gaussian(duration=128, amp=0.1, sigma=16)\n    d0 = DriveChannel(0)\n    with pulse.build(backend=backend, name='gaussian_pulse_schedule') as gaussian_pulse_schedule:\n        pulse.play(gaussian_pulse, d0)\n    return gaussian_pulse_schedule\n",
-        "test": "def check(candidate):\n    gaussian_pulse_schedule = candidate()\n    assert gaussian_pulse_schedule.name == 'gaussian_pulse_schedule'\n    assert gaussian_pulse_schedule.duration == 128\n",
-        "entry_point": "define_gaussian_pulse_schedule",
-        "difficulty_scale": "intermediate"
+        "prompt": "from qiskit import QuantumCircuit\nfrom qiskit.circuit.library import U3Gate\ndef controlled_custom_unitary_circuit():\n    \"\"\" Create a 2-qubit quantum circuit where you define a custom 1-qubit unitary gate (e.g., U3) and apply it as a controlled gate with qubit 0 as control and qubit 1 as target. Return the final circuit.\n    \"\"\"",
+        "canonical_solution": "\n    qc = QuantumCircuit(2)\n    custom_gate = U3Gate(0.3, 0.2, 0.1).control()\n    qc.append(custom_gate, [0, 1])\n    return qc\n",
+        "test": "def check(candidate):\n    qc = candidate()\n    assert isinstance(qc, QuantumCircuit)\n    assert qc.num_qubits == 2\n    assert any(instr[0].name.startswith('cu3') or 'u3' in instr[0].name for instr in qc.data)\n",
+        "entry_point": "controlled_custom_unitary_circuit",
+        "difficulty_scale": "basic"
     },
     {
         "task_id": "qiskitHumanEval/85",
@@ -689,10 +689,10 @@
     },
     {
         "task_id": "qiskitHumanEval/86",
-        "prompt": "from qiskit import pulse\nfrom qiskit_ibm_runtime.fake_provider import FakeBelemV2\nfrom qiskit.pulse import DriveChannel, Constant, Play, Delay\ndef pulse_schedule_with_constant_and_delay():\n    \"\"\" Using Qiskit Pulse, create a schedule with a constant pulse on drive channel 0, featuring a duration of 160 and an amplitude of 0.1 and name this schedule \"pulse_schedule_with_constant_and_delay\". Use the FakeBelem backend for configuration. After creating the pulse, add a delay of 400 to the schedule, then replay the same pulse. Return the completed pulse schedule.\n    \"\"\"",
-        "canonical_solution": "\n    backend = FakeBelemV2()\n    constant_pulse = Constant(duration=160, amp=0.1)\n    drive_chan = DriveChannel(0)\n    with pulse.build(backend=backend, name=\"pulse_schedule_with_constant_and_delay\") as pulse_sched:\n        pulse.play(constant_pulse, drive_chan)\n        pulse.delay(400, drive_chan)\n        pulse.play(constant_pulse, drive_chan)\n    return pulse_sched\n",
-        "test": "def check(candidate):\n    pulse_sched = candidate()\n    constant_pulses = 0\n    delays = 0\n    for _, inst in pulse_sched.instructions:\n        if isinstance(inst, Play):\n            if isinstance(inst.pulse, Constant):\n                constant_pulses += 1\n        elif isinstance(inst, Delay):\n            delays += 1\n    assert constant_pulses == 2, \"Schedule should contain exactly two Constant pulses.\"\n    assert delays == 1, \"Schedule should contain exactly one Delay instruction.\"\n    assert pulse_sched.name == \"pulse_schedule_with_constant_and_delay\"\n",
-        "entry_point": "pulse_schedule_with_constant_and_delay",
+        "prompt": "from qiskit import QuantumCircuit\nfrom qiskit.transpiler.passes import CollectLinearFunctions\nfrom qiskit.transpiler import PassManager\ndef collect_linear_blocks_with_and_without_limit():\n    \"\"\" Create a 5-qubit quantum circuit with a chain of CX gates and apply Qiskit's CollectLinearFunctions transpiler pass. Return two circuits:\n    1. One with no block width restriction.\n    2. One with a max_block_width of 3.\n    Use PassManager to apply the pass and return both circuits.\n    \"\"\"",
+        "canonical_solution": "\n    qc = QuantumCircuit(5)\n    qc.h(0)\n    qc.cx(0, 1)\n    qc.cx(1, 2)\n    qc.cx(2, 3)\n    qc.cx(3, 4)\n    pm_full = PassManager([CollectLinearFunctions()])\n    full_block = pm_full.run(qc)\n    pm_limited = PassManager([CollectLinearFunctions(max_block_width=3)])\n    limited_block = pm_limited.run(qc)\n    return full_block, limited_block\n",
+        "test": "def check(candidate):\n    from qiskit.circuit.library import LinearFunction\n    full, limited = candidate()\n    full_linear_count = sum(1 for instr in full.data if isinstance(instr.operation, LinearFunction))\n    limited_linear_count = sum(1 for instr in limited.data if isinstance(instr.operation, LinearFunction))\n    assert full_linear_count == 1\n    assert limited_linear_count > 1\n",
+        "entry_point": "collect_linear_blocks_with_and_without_limit",
         "difficulty_scale": "intermediate"
     },
     {
