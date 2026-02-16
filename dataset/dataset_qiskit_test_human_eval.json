@@ -330,8 +330,8 @@
     {
         "task_id": "qiskitHumanEval/41",
         "prompt": "from qiskit.quantum_info.operators import Operator, Pauli\nimport numpy as np\ndef compose_op() -> Operator:\n    \"\"\" Compose XZ with a 3-qubit identity operator using the Operator and the Pauli 'YX' class in Qiskit. Return the operator instance.\n    \"\"\"",
-        "canonical_solution": "\n    op = Operator(np.eye(2 ** 3))\n    YX = Operator(Pauli('YX'))\n    op.compose(YX, qargs=[0, 2], front=True)\n    return op\n",
-        "test": "def check(candidate):\n    result = candidate()\n    op = Operator(np.eye(2 ** 3))\n    YX = Operator(Pauli('YX'))\n    op.compose(YX, qargs=[0, 2], front=True)\n    assert(result == op)\n",
+        "canonical_solution": "\n    op = Operator(np.eye(2 ** 3))\n    YX = Operator(Pauli('YX'))\n    composition = op.compose(YX, qargs=[0, 2], front=True)\n    return composition\n",
+        "test": "def check(candidate):\n    result = candidate()\n    op = Operator(np.eye(2 ** 3))\n    YX = Operator(Pauli('YX'))\n    expected = op.compose(YX, qargs=[0, 2], front=True)\n    assert(result == expected)\n",
         "entry_point": "compose_op",
         "difficulty_scale": "basic"
     },
