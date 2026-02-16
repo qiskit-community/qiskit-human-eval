@@ -345,7 +345,7 @@
     },
     {
         "task_id": "qiskitHumanEval/43",
-        "prompt": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\nfrom qiskit import QuantumCircuit\ndef generate_pass_manager_obj()-> QuantumCircuit:\n    \"\"\" Instantiate a preset_passmanager using Qiskit using the least busy device available and optimzation level 3. Return the resulting passmanager instance.\n    \"\"\"",
+        "prompt": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit.transpiler.passmanager import StagedPassManager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\ndef generate_pass_manager_obj()-> StagedPassManager:\n    \"\"\" Instantiate a preset_passmanager using Qiskit using the least busy device available and optimzation level 3. Return the resulting passmanager instance.\n    \"\"\"",
         "canonical_solution": "\n    provider = QiskitRuntimeService()\n    backend = provider.least_busy()\n    pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n    return pass_manager\n",
         "test": "def check(candidate):\n    from qiskit.transpiler.passmanager import StagedPassManager\n    result = candidate()\n    assert(type(result) == StagedPassManager)\n",
         "entry_point": "generate_pass_manager_obj",
