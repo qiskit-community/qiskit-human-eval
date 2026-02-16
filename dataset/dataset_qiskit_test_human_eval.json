@@ -1139,7 +1139,7 @@
         "task_id": "qiskitHumanEval/142",
         "prompt": "from qiskit.quantum_info import random_density_matrix, purity, DensityMatrix\nimport numpy as np\ndef purity_dataset():\n    \"\"\" Return a list of 10 single qubit density matrices whose purity is greater than 0.5.\n    \"\"\"",
         "canonical_solution": "\n    purity_dataset_list = []\n    while len(purity_dataset_list)<=9:\n        rand_density_matrix = random_density_matrix(dims=2)\n        if np.abs(purity(rand_density_matrix))>=0.5:\n            purity_dataset_list.append(rand_density_matrix)\n    return purity_dataset_list\n",
-        "test": "def check(candidate):\n    can_list = candidate()\n    assert len(can_list) == 10, \"Number of density matrices is not 10\"\n    for _, item in enumerate(can_list):\n        assert isinstance(item, DensityMatrix)\n        assert np.abs(purity(item))>=0.5, \"Purity of the denisty matrices is not less than 0.5\"\n",
+        "test": "def check(candidate):\n    can_list = candidate()\n    assert len(can_list) == 10, \"Number of density matrices is not 10\"\n    for _, item in enumerate(can_list):\n        assert isinstance(item, DensityMatrix)\n        assert np.abs(purity(item))>=0.5, \"Purity of the density matrices is less than 0.5\"\n",
         "entry_point": "purity_dataset",
         "difficulty_scale": "intermediate"
     },
