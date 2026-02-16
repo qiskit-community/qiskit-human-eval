@@ -321,7 +321,7 @@
     },
     {
         "task_id": "qiskitHumanEval/40",
-        "prompt": "Initialize a non-trivial 3-qubit state for a given desired vector state and return counts after running it using Qiskit Sampler with the Aer simulator as backend and ser=t seed as 42.\nYou must implement this using a function named `init_random_3qubit` with the following arguments: desired_vector.",
+        "prompt": "Initialize a non-trivial 3-qubit state for a given desired vector state and return counts after running it using Qiskit Sampler with the Aer simulator as backend and set seed to 42.\nYou must implement this using a function named `init_random_3qubit` with the following arguments: desired_vector.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\nfrom qiskit_aer import AerSimulator\nfrom qiskit_ibm_runtime import Sampler\nfrom qiskit_ibm_runtime.options import SamplerOptions\n\ndef init_random_3qubit(desired_vector):\n    qc = QuantumCircuit(3)\n    qc.initialize(desired_vector, range(3))\n    qc.measure_all()\n    backend = AerSimulator()\n    options = SamplerOptions()\n    options.simulator.seed_simulator=42\n    sampler = Sampler(mode=backend,options=options)\n    result = sampler.run([qc]).result()\n    return result[0].data.meas.get_counts()\n",
         "entry_point": "init_random_3qubit",
         "difficulty_scale": "basic",
