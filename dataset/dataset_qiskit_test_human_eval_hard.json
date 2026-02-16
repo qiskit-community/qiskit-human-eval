@@ -821,7 +821,7 @@
         "canonical_solution": "from qiskit.circuit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeKyoto, FakeKyiv, FakeAuckland\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef backend_with_least_instructions():\n    qc = QuantumCircuit(2)\n    qc.h(0)\n    qc.cx(0, 1)\n    backends = [FakeKyiv(), FakeKyoto(), FakeAuckland()]\n    qc_isa_num_intruc = {}\n    for backend in backends:\n        pm = generate_preset_pass_manager(optimization_level=0, backend=backend)\n        qc_isa_num_intruc[backend.name] = len(pm.run(qc).data)\n    return min(qc_isa_num_intruc, key=qc_isa_num_intruc.get)\n",
         "entry_point": "backend_with_least_instructions",
         "difficulty_scale": "basic",
-        "test": "from qiskit.circuit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeKyoto, FakeKyiv, FakeAuckland\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef check(candidate):\n    backend_can = candidate()\n    assert backend_can in \"fake_auckland\" or \"auckland\" in backend_can\n\ncheck(backend_with_least_instructions)"
+        "test": "from qiskit.circuit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeKyoto, FakeKyiv, FakeAuckland\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef check(candidate):\n    backend_can = candidate()\n    assert backend_can == \"fake_auckland\" or \"auckland\" in backend_can\n\ncheck(backend_with_least_instructions)"
     },
     {
         "task_id": "qiskitHumanEval/103",
