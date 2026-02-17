@@ -817,7 +817,7 @@
     },
     {
         "task_id": "qiskitHumanEval/102",
-        "prompt": "Transpile the circuit for the phi plus bell state for FakeKyoto, FakeKyiv and FakeAuckland using the level 1 preset pass manager and return the backend name with the lowest number of instructions.\nYou must implement this using a function named `backend_with_least_instructions` with no arguments.",
+        "prompt": "Transpile the circuit for the phi plus bell state for FakeKyoto, FakeKyiv and FakeAuckland using the level 0 preset pass manager and return the backend name with the lowest number of instructions.\nYou must implement this using a function named `backend_with_least_instructions` with no arguments.",
         "canonical_solution": "from qiskit.circuit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeKyoto, FakeKyiv, FakeAuckland\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef backend_with_least_instructions():\n    qc = QuantumCircuit(2)\n    qc.h(0)\n    qc.cx(0, 1)\n    backends = [FakeKyiv(), FakeKyoto(), FakeAuckland()]\n    qc_isa_num_intruc = {}\n    for backend in backends:\n        pm = generate_preset_pass_manager(optimization_level=0, backend=backend)\n        qc_isa_num_intruc[backend.name] = len(pm.run(qc).data)\n    return min(qc_isa_num_intruc, key=qc_isa_num_intruc.get)\n",
         "entry_point": "backend_with_least_instructions",
         "difficulty_scale": "basic",
