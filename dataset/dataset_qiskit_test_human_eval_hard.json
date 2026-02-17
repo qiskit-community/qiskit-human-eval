@@ -98,7 +98,7 @@
     {
         "task_id": "qiskitHumanEval/12",
         "prompt": "Get unitary matrix for a phi plus bell circuit and return it.\nYou must implement this using a function named `get_unitary` with no arguments.",
-        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\n\ndef get_unitary():\n    circ = QuantumCircuit(2)\n    circ.h(0)\n    circ.cx(0, 1)\n    return Operator.from_circuit(circ).to_matrix()",
+        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\nimport numpy as np\n\ndef get_unitary() -> np.ndarray:\n    circ = QuantumCircuit(2)\n    circ.h(0)\n    circ.cx(0, 1)\n    return Operator.from_circuit(circ).to_matrix()",
         "entry_point": "get_unitary",
         "difficulty_scale": "basic",
         "test": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\ndef check(candidate):\n    result = candidate()\n    solution = QuantumCircuit(2)\n    solution.h(0)\n    solution.cx(0, 1)\n    assert Operator(solution).equiv(result)\n\ncheck(get_unitary)"

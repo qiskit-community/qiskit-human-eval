@@ -97,7 +97,7 @@
     },
     {
         "task_id": "qiskitHumanEval/12",
-        "prompt": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\ndef get_unitary() -> Operator:\n    \"\"\" Get unitary matrix for a phi plus bell circuit and return it.\n    \"\"\"",
+        "prompt": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\nimport numpy as np\ndef get_unitary() -> np.ndarray:\n    \"\"\" Get unitary matrix for a phi plus bell circuit and return it.\n    \"\"\"",
         "canonical_solution": "\n    circ = QuantumCircuit(2)\n    circ.h(0)\n    circ.cx(0, 1)\n    return Operator.from_circuit(circ).to_matrix()",
         "test": "def check(candidate):\n    result = candidate()\n    solution = QuantumCircuit(2)\n    solution.h(0)\n    solution.cx(0, 1)\n    assert Operator(solution).equiv(result)\n",
         "entry_point": "get_unitary",
