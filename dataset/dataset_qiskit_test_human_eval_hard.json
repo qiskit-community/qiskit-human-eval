@@ -449,7 +449,7 @@
     },
     {
         "task_id": "qiskitHumanEval/56",
-        "prompt": "Given two 8-bit integers, design a quantum circuit that acts as a classical NOT gate. Simulate the circuit Qiskit Sampler with the Aer simulator as backend and return the counts of the result.\nYou must implement this using a function named `not_gate` with the following arguments: a.",
+        "prompt": "Given an 8-bit integer, design a quantum circuit that acts as a classical NOT gate. Simulate the circuit Qiskit Sampler with the Aer simulator as backend and return the counts of the result.\nYou must implement this using a function named `not_gate` with the following arguments: a.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit_aer import AerSimulator\nfrom qiskit_ibm_runtime import Sampler\n\ndef not_gate(a):\n    circuit = QuantumCircuit(8)\n    a = format(a, \"08b\")\n    for i in range(8):\n        if a[7-i] == \"0\":\n            circuit.x(i)\n    circuit.measure_all()\n    backend = AerSimulator()\n    sampler = Sampler(mode=backend)\n    result = sampler.run([circuit]).result()\n    return result[0].data.meas.get_counts()\n",
         "entry_point": "not_gate",
         "difficulty_scale": "intermediate",
