@@ -1113,7 +1113,7 @@
     },
     {
         "task_id": "qiskitHumanEval/139",
-        "prompt": "Return the schmidt decomposition coefficients and the subsystem vectors for the given density matrix and partition.\nYou must implement this using a function named `schmidt_test` with the following arguments: data, qargs_B.",
+        "prompt": "Return the schmidt decomposition coefficients and the subsystem vectors for the given statevector and partition.\nYou must implement this using a function named `schmidt_test` with the following arguments: data, qargs_B.",
         "canonical_solution": "from qiskit.quantum_info import schmidt_decomposition\n\ndef schmidt_test(data, qargs_B):\n    return schmidt_decomposition(data, qargs_B)\n",
         "entry_point": "schmidt_test",
         "difficulty_scale": "basic",
