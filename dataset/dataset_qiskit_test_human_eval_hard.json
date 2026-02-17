@@ -77,7 +77,7 @@
         "canonical_solution": "from qiskit.circuit.library import efficient_su2\n\ndef create_efficientSU2():\n    circuit = efficient_su2(num_qubits=3, reps=1, insert_barriers=True)\n    return circuit\n",
         "entry_point": "create_efficientSU2",
         "difficulty_scale": "basic",
-        "test": "from qiskit.circuit.library import efficient_su2\nfrom qiskit.circuit import QuantumCircuit\ndef check(candidate):\n    result = candidate()\n    solution = efficient_su2(num_qubits=3, reps=1, insert_barriers=True)\n    assert isinstance(result, QuantumCircuit)\n    assert solution.num_qubits == result.num_qubits\n\ncheck(create_efficientSU2)"
+        "test": "from qiskit.circuit.library import efficient_su2\nfrom qiskit.circuit import QuantumCircuit\ndef check(candidate):\n    result = candidate()\n    solution = efficient_su2(num_qubits=3, reps=1, insert_barriers=True)\n    assert isinstance(result, QuantumCircuit)\n    assert solution.num_qubits == result.num_qubits\n    barrier_ops = [op for op in result if op.operation.name == 'barrier']\n    assert len(barrier_ops) > 0, 'Circuit should contain barriers when insert_barriers=True'\n    # Check reps by comparing the number of parameters\n    assert result.num_parameters == solution.num_parameters\n\ncheck(create_efficientSU2)"
     },
     {
         "task_id": "qiskitHumanEval/10",
