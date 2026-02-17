@@ -1122,7 +1122,7 @@
     {
         "task_id": "qiskitHumanEval/140",
         "prompt": "from qiskit.quantum_info import shannon_entropy\nimport numpy as np\ndef shannon_entropy_data(ε):\n    \"\"\" Return a list of ten probability vectors each of length 16 whose shannon entropy is greater than a given value.\n    \"\"\"",
-        "canonical_solution": "\n    shannon_data = []\n    while len(shannon_data) <= 9:\n        rand_prob = np.random.randn(16)\n        if shannon_entropy(rand_prob) >= ε:\n            shannon_data.append(rand_prob)\n    return shannon_data\n",
+        "canonical_solution": "\n    shannon_data = []\n    while len(shannon_data) <= 9:\n        rand_prob = np.random.dirichlet(np.ones(16))\n        if shannon_entropy(rand_prob) >= ε:\n            shannon_data.append(rand_prob)\n    return shannon_data\n",
         "test": "def check(candidate):\n    tol = 1\n    can_list = candidate(tol)\n    assert len(can_list) == 10, \" The length of the list is not 10\"\n    for _, item in enumerate(can_list):\n        assert shannon_entropy(item)>= tol, \"Shannon entropy not greater than given value\"\n        assert len(item) == 16, \"The length of the probability vector is not 16\"\n",
         "entry_point": "shannon_entropy_data",
         "difficulty_scale": "basic"
