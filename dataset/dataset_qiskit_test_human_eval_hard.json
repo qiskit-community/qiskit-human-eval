@@ -345,11 +345,11 @@
     },
     {
         "task_id": "qiskitHumanEval/43",
-        "prompt": "Instantiate a preset_passmanager using Qiskit using the least busy device available and optimzation level 3. Return the resulting passmanager instance.\nYou must implement this using a function named `generate_pass_manager_obj` with no arguments.",
-        "canonical_solution": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\nfrom qiskit import QuantumCircuit\n\ndef generate_pass_manager_obj():\n    provider = QiskitRuntimeService()\n    backend = provider.least_busy()\n    pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n    return pass_manager\n",
+        "prompt": "Instantiate a preset_passmanager using Qiskit using the least busy device available and optimization level 3. Return the resulting passmanager instance.\nYou must implement this using a function named `generate_pass_manager_obj` with no arguments.",
+        "canonical_solution": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit.transpiler.passmanager import StagedPassManager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\n\ndef generate_pass_manager_obj()-> StagedPassManager:\n    provider = QiskitRuntimeService()\n    backend = provider.least_busy()\n    pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n    return pass_manager\n",
         "entry_point": "generate_pass_manager_obj",
         "difficulty_scale": "basic",
-        "test": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\nfrom qiskit import QuantumCircuit\ndef check(candidate):\n    from qiskit.transpiler.passmanager import StagedPassManager\n    result = candidate()\n    assert(type(result) == StagedPassManager)\n\ncheck(generate_pass_manager_obj)"
+        "test": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\ndef check(candidate):\n    from qiskit.transpiler.passmanager import StagedPassManager\n    result = candidate()\n    assert(type(result) == StagedPassManager)\n\ncheck(generate_pass_manager_obj)"
     },
     {
         "task_id": "qiskitHumanEval/44",
