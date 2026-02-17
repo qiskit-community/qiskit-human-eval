@@ -570,10 +570,10 @@
     {
         "task_id": "qiskitHumanEval/71",
         "prompt": "Build a Quantum Circuit composed by the gates H in Quantum register 0, Controlled-\u221aX gate in quantum register 0 1, and H gate in quantum register 1.\nYou must implement this using a function named `create_quantum_circuit_based_h0_csx01_h1` with no arguments.",
-        "canonical_solution": "from qiskit import QuantumCircuit\n\ndef create_quantum_circuit_based_h0_csx01_h1():\n    qc = QuantumCircuit(3)\n    qc.h(0)\n    qc.csx(0,1)\n    qc.h(1)\n    return qc\n",
+        "canonical_solution": "from qiskit import QuantumCircuit\n\ndef create_quantum_circuit_based_h0_csx01_h1():\n    qc = QuantumCircuit(2)\n    qc.h(0)\n    qc.csx(0,1)\n    qc.h(1)\n    return qc\n",
         "entry_point": "create_quantum_circuit_based_h0_csx01_h1",
         "difficulty_scale": "basic",
-        "test": "from qiskit import QuantumCircuit\ndef check(candidate):\n    result = candidate()\n    assert isinstance(result, QuantumCircuit)\n    assert result.num_qubits == 3\n    assert result.depth() == 3\n    assert dict(result.count_ops()) == {\"h\": 2, \"csx\": 1}\n\ncheck(create_quantum_circuit_based_h0_csx01_h1)"
+        "test": "from qiskit import QuantumCircuit\ndef check(candidate):\n    result = candidate()\n    assert isinstance(result, QuantumCircuit)\n    assert result.num_qubits == 2\n    assert result.depth() == 3\n    assert dict(result.count_ops()) == {\"h\": 2, \"csx\": 1}\n\ncheck(create_quantum_circuit_based_h0_csx01_h1)"
     },
     {
         "task_id": "qiskitHumanEval/72",
