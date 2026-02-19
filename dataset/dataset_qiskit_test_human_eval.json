@@ -194,7 +194,7 @@
     {
         "task_id": "qiskitHumanEval/24",
         "prompt": "from qiskit import QuantumCircuit\nfrom qiskit.primitives import StatevectorSampler\nfrom numpy import isclose\ndef dj_algorithm(oracle: QuantumCircuit) -> bool:\n    \"\"\" Given a Deutsch-Jozsa oracle in which the final qubit is the \"output\" qubit, return True if the oracle is constant or False otherwise.\n    \"\"\"",
-        "canonical_solution": "\n    n = oracle.num_qubits\n    qc = QuantumCircuit(n, n - 1)\n    qc.x(n - 1)\n    qc.h(range(n))\n    qc.compose(oracle, inplace=True)\n    qc.h(range(n))\n    qc.measure(range(n - 1), range(n - 1))\n    counts = StatevectorSampler().run([qc]).result()[0].data.c.get_counts()\n    return isclose(counts.get('00000000', 0), 1024)\n",
+        "canonical_solution": "\n    n = oracle.num_qubits\n    qc = QuantumCircuit(n, n - 1)\n    qc.x(n - 1)\n    qc.h(range(n))\n    qc.compose(oracle, inplace=True)\n    qc.h(range(n))\n    qc.measure(range(n - 1), range(n - 1))\n    counts = StatevectorSampler().run([qc]).result()[0].data.c.get_counts()\n\n    all_zeros = '0' * (n - 1)\n    return isclose(counts.get(all_zeros, 0), 1024)\n",
         "test": "def check(candidate):\n    balanced = QuantumCircuit(5)\n    balanced.cx(3, 4)\n    assert candidate(balanced) == False\n    constant = QuantumCircuit(9)\n    constant.x(8)\n    assert candidate(constant) == True\n",
         "entry_point": "dj_algorithm",
         "difficulty_scale": "intermediate"
