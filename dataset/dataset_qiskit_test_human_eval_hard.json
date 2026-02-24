@@ -1045,7 +1045,7 @@
         "canonical_solution": "from qiskit.circuit import QuantumCircuit\n\ndef inv_circuit(n):\n    qc = QuantumCircuit(n)\n    for i in range(2):\n        qc.h(i+1)\n\n    for i in range(2):\n        qc.cx(i+1, i+2+1)\n    \n    return qc.inverse()\n",
         "entry_point": "inv_circuit",
         "difficulty_scale": "basic",
-        "test": "from qiskit.circuit import QuantumCircuit\ndef check(candidate):\n    n = 5\n    qc_inv = candidate(n)\n\n    expected_qc = QuantumCircuit(n)\n    for i in range(2):\n        expected_qc.h(i+1)\n\n    for i in range(2):\n        expected_qc.cx(i+1, i+2+1)\n    \n    expected_qc_inv = expected_qc.inverse()\n\n    assert qc_inv, QuantumCircuit\n    assert qc_inv == expected_qc_inv\n\ncheck(inv_circuit)"
+        "test": "from qiskit.circuit import QuantumCircuit\ndef check(candidate):\n    n = 5\n    qc_inv = candidate(n)\n\n    expected_qc = QuantumCircuit(n)\n    for i in range(2):\n        expected_qc.h(i+1)\n\n    for i in range(2):\n        expected_qc.cx(i+1, i+2+1)\n    \n    expected_qc_inv = expected_qc.inverse()\n\n    assert isinstance(qc_inv, QuantumCircuit)\n    assert qc_inv == expected_qc_inv\n\ncheck(inv_circuit)"
     },
     {
         "task_id": "qiskitHumanEval/131",
