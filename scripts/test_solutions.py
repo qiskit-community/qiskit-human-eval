@@ -224,8 +224,6 @@ def main() -> int:
         print(f'Testing task: {task_id_filter}')
     if dataset_filter:
         print(f'Dataset: {dataset_filter}')
-    if task_id_filter or dataset_filter:
-        print()
 
     for dataset in datasets:
         if task_id_filter:
