@@ -747,7 +747,7 @@
         "task_id": "qiskitHumanEval/93",
         "prompt": "from qiskit.synthesis import synth_clifford_full\nfrom qiskit.quantum_info.random import random_clifford\ndef synthesize_clifford_circuit(n_qubits:int):\n    \"\"\" Create a random clifford circuit using the random_clifford function for a given n qubits with seed 1234 and synthesize it using synth_clifford_full method and return.\n    \"\"\"",
         "canonical_solution": "\n    qc = random_clifford(n_qubits, seed=1234)\n    synthesized_qc = synth_clifford_full(qc)\n    return synthesized_qc\n",
-        "test": "def check(candidate):\n    from qiskit.quantum_info import Operator\n    n_qubits = 6\n    synthesized_qc = candidate(n_qubits)\n    qc = random_clifford(n_qubits)\n    synthesized_qc = synth_clifford_full(qc)\n    assert Operator(synthesized_qc) == Operator(qc)\n",
+        "test": "def check(candidate):\n    from qiskit.quantum_info import Operator\n    n_qubits = 6\n    synthesized_qc = candidate(n_qubits)\n    qc = random_clifford(n_qubits, seed=1234)\n    expected = synth_clifford_full(qc)\n    assert Operator(synthesized_qc) == Operator(expected)\n",
         "entry_point": "synthesize_clifford_circuit",
         "difficulty_scale": "basic"
     },
