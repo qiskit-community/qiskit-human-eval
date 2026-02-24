@@ -13,7 +13,7 @@ MAX_FAILURES_TO_SHOW = 15
 MAX_ERROR_LINES_TO_SHOW = 10
 
 
-def test_problem(problem: dict[str, Any]) -> Tuple[bool, Optional[str]]:
+def test_problem(problem: dict[str, Any], exclude_prompt: Optional[bool] = False) -> Tuple[bool, Optional[str]]:
     """
     Test a single problem's canonical solution against its test case.
 
@@ -27,8 +27,9 @@ def test_problem(problem: dict[str, Any]) -> Tuple[bool, Optional[str]]:
 
     try:
         # Create executable code by combining prompt, solution, and test
+        prompt = '' if exclude_prompt else problem['prompt']
         code = (
-            problem['prompt'] + '\n' +
+            prompt + '\n' +
             problem['canonical_solution'] + '\n' +
             problem['test']
         )
@@ -70,7 +71,7 @@ def test_problem(problem: dict[str, Any]) -> Tuple[bool, Optional[str]]:
         return False, f'{type(e).__name__}: {e}\n{error_detail}'
 
 
-def test_dataset(filepath: Path, task_id_filter: Optional[str] = None) -> Tuple[int, list[dict[str, str]]]:
+def test_dataset(filepath: Path, task_id_filter: Optional[str] = None, exclude_prompt: Optional[bool] = False) -> Tuple[int, list[dict[str, str]]]:
     """
     Test all canonical solutions in a dataset.
 
@@ -116,7 +117,7 @@ def test_dataset(filepath: Path, task_id_filter: Optional[str] = None) -> Tuple[
             continue
 
         # Test the solution
-        success, error = test_problem(problem)
+        success, error = test_problem(problem, exclude_prompt)
 
         if success:
             passed += 1
@@ -167,6 +168,13 @@ def parse_arguments() -> argparse.Namespace:
         help='Test a specific problem (searches all datasets if not combined with -d)'
     )
 
+    parser.add_argument(
+        '-e', '--exclude-prompt',
+        dest='exclude',
+        action="store_true",
+        help='Do not prepend the prompt to the execution code'
+    )
+
     return parser.parse_args()
 
 
@@ -181,6 +189,7 @@ def main() -> int:
     # Extract arguments and convert to Path objects
     dataset_filter = Path(args.dataset) if args.dataset else None
     task_id_filter = args.task
+    exclude_prompt = args.exclude
 
     # Determine which datasets to test
     default_datasets = [
@@ -224,7 +233,7 @@ def main() -> int:
         else:
             print(f'Testing {dataset}...')
 
-        passed, failures = test_dataset(dataset, task_id_filter=task_id_filter)
+        passed, failures = test_dataset(dataset, task_id_filter=task_id_filter, exclude_prompt=exclude_prompt)
 
         dataset_results[dataset] = {
             'passed': passed,
