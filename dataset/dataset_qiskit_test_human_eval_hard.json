@@ -98,7 +98,7 @@
     {
         "task_id": "qiskitHumanEval/12",
         "prompt": "Get unitary matrix for a phi plus bell circuit and return it.\nYou must implement this using a function named `get_unitary` with no arguments.",
-        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\n\ndef get_unitary():\n    circ = QuantumCircuit(2)\n    circ.h(0)\n    circ.cx(0, 1)\n    return Operator.from_circuit(circ).to_matrix()",
+        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\nimport numpy as np\n\ndef get_unitary() -> np.ndarray:\n    circ = QuantumCircuit(2)\n    circ.h(0)\n    circ.cx(0, 1)\n    return Operator.from_circuit(circ).to_matrix()",
         "entry_point": "get_unitary",
         "difficulty_scale": "basic",
         "test": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Operator\ndef check(candidate):\n    result = candidate()\n    solution = QuantumCircuit(2)\n    solution.h(0)\n    solution.cx(0, 1)\n    assert Operator(solution).equiv(result)\n\ncheck(get_unitary)"
@@ -154,7 +154,7 @@
     {
         "task_id": "qiskitHumanEval/19",
         "prompt": "Transpile and map an 11-qubit GHZ circuit for the Fake Toronto V2 backend using pass manager with maximum transpiler optimization.\nYou must implement this using a function named `transpile_circuit_maxopt` with no arguments.",
-        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeTorontoV2\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef transpile_circuit_maxopt():\n    backend = FakeTorontoV2()\n    ghz = QuantumCircuit(11, 11)\n    ghz.h(0)\n    ghz.cx(0, range(1, 11))\n    ghz.barrier()\n    pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n    return pass_manager.run(ghz)\n",
+        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeTorontoV2\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef transpile_circuit_maxopt():\n    backend = FakeTorontoV2()\n    ghz = QuantumCircuit(11)\n    ghz.h(0)\n    ghz.cx(0, range(1, 11))\n    ghz.barrier()\n    pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n    return pass_manager.run(ghz)\n",
         "entry_point": "transpile_circuit_maxopt",
         "difficulty_scale": "intermediate",
         "test": "from qiskit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeTorontoV2\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef check(candidate):\n    result = candidate()\n    result.remove_final_measurements()\n    backend = FakeTorontoV2()\n    # Check initial layout is not the trivial layout (this is very unlikely\n    # if transpiled with optimization level 3)\n    assert result.layout.initial_index_layout() != list(range(backend.num_qubits))\n    # Optimization level 3 should easily find circuits with depth < 200\n    assert result.depth() < 150\n\ncheck(transpile_circuit_maxopt)"
@@ -274,10 +274,10 @@
     {
         "task_id": "qiskitHumanEval/34",
         "prompt": "Generate all four Bell states and execute them on the FakeAlgiers backend using SamplerV2 with batch mode. Each Bell state circuit will be transpiled with an optimization level of 3, with the seed 123 for the transpiler.\nReturns a dictionary where the keys are the Bell state names ['phi_plus', 'phi_minus', 'psi_plus', 'psi_minus'] and the values are the corresponding RuntimeJob objects and the batch id.\nYou must implement this using a function named `run_jobs_on_batch` with no arguments.",
-        "canonical_solution": "from typing import Dict, Optional, Tuple\nfrom qiskit_ibm_runtime import Batch, Sampler\nfrom qiskit.primitives.primitive_job import PrimitiveJob\nfrom qiskit_ibm_runtime.fake_provider import FakeAlgiers\nfrom qiskit.transpiler import CouplingMap\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef run_jobs_on_batch():\n    def create_bell_circuit(state):\n        \"Helper function to create bell state\"\n        qc = QuantumCircuit(2)\n        qc.h(0) \n        qc.cx(0, 1)\n        if state == \"phi_minus\":\n            qc.z(0)\n        elif state == \"psi_plus\":\n            qc.x(1)\n        elif state == \"psi_minus'\":\n            qc.x(1)\n            qc.z(0)\n        qc.measure_all()\n        return qc\n        \n    # Create bell states\n    bell_states = [\"phi_plus\", \"phi_minus\", \"psi_plus\", \"psi_minus\"]\n    circuits = [create_bell_circuit(state) for state in bell_states]\n\n    # Setting backend and pass managers\n    backend = FakeAlgiers()\n    coupling_map = CouplingMap(backend.configuration().coupling_map)\n    pm = generate_preset_pass_manager(optimization_level = 3, backend=backend, seed_transpiler=123, coupling_map=coupling_map)\n\n    # Running jobs using batch\n    with Batch(backend=backend) as batch:\n        jobs = {}\n        sampler = Sampler(mode=batch)\n        for bell_state, bell_circuit in zip(bell_states, circuits):\n            isa_bell_circuit = pm.run(bell_circuit)\n            jobs[bell_state] = sampler.run([(isa_bell_circuit)])\n        return jobs\n",
+        "canonical_solution": "from qiskit_ibm_runtime import Batch, Sampler\nfrom qiskit.primitives.primitive_job import PrimitiveJob\nfrom qiskit_ibm_runtime.fake_provider import FakeAlgiers\nfrom qiskit.transpiler import CouplingMap\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef run_jobs_on_batch():\n    def create_bell_circuit(state):\n        \"Helper function to create bell state\"\n        qc = QuantumCircuit(2)\n        qc.h(0) \n        qc.cx(0, 1)\n        if state == \"phi_minus\":\n            qc.z(0)\n        elif state == \"psi_plus\":\n            qc.x(1)\n        elif state == \"psi_minus\":\n            qc.x(1)\n            qc.z(0)\n        qc.measure_all()\n        return qc\n        \n    # Create bell states\n    bell_states = [\"phi_plus\", \"phi_minus\", \"psi_plus\", \"psi_minus\"]\n    circuits = [create_bell_circuit(state) for state in bell_states]\n\n    # Setting backend and pass managers\n    backend = FakeAlgiers()\n    coupling_map = CouplingMap(backend.configuration().coupling_map)\n    pm = generate_preset_pass_manager(optimization_level = 3, backend=backend, seed_transpiler=123, coupling_map=coupling_map)\n\n    # Running jobs using batch\n    with Batch(backend=backend) as batch:\n        jobs = {}\n        sampler = Sampler(mode=batch)\n        for bell_state, bell_circuit in zip(bell_states, circuits):\n            isa_bell_circuit = pm.run(bell_circuit)\n            jobs[bell_state] = sampler.run([(isa_bell_circuit)])\n        return jobs\n",
         "entry_point": "run_jobs_on_batch",
         "difficulty_scale": "difficult",
-        "test": "from typing import Dict, Optional, Tuple\nfrom qiskit_ibm_runtime import Batch, Sampler\nfrom qiskit.primitives.primitive_job import PrimitiveJob\nfrom qiskit_ibm_runtime.fake_provider import FakeAlgiers\nfrom qiskit.transpiler import CouplingMap\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef check(candidate):\n    from numpy import isclose\n    jobs = candidate()\n    reference_data = {\n        'phi_plus': {'00': 0.10, '11': 0.10},\n        'phi_minus': {'00': 0.10, '11': 0.10},\n        'psi_plus': {'01': 0.10, '10': 0.10},\n        'psi_minus': {'01': 0.1, '10': 0.10}\n    }\n    assert isinstance(jobs, dict)\n    assert set(jobs.keys()) == set(reference_data.keys())\n    for state, job in jobs.items():\n        assert isinstance(job, PrimitiveJob)\n        assert job.job_id() is not None\n        counts = job.result()[0].data.meas.get_counts()\n        shots = 4096\n        normalized_counts = {k: v/shots for k, v in counts.items()}\n        for key, value in reference_data[state].items():\n            assert isclose(normalized_counts[key], value, atol=1e-01)\n\ncheck(run_jobs_on_batch)"
+        "test": "from qiskit_ibm_runtime import Batch, Sampler\nfrom qiskit.primitives.primitive_job import PrimitiveJob\nfrom qiskit_ibm_runtime.fake_provider import FakeAlgiers\nfrom qiskit.transpiler import CouplingMap\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef check(candidate):\n    from numpy import isclose\n    jobs = candidate()\n    reference_data = {\n        'phi_plus': {'00': 0.10, '11': 0.10},\n        'phi_minus': {'00': 0.10, '11': 0.10},\n        'psi_plus': {'01': 0.10, '10': 0.10},\n        'psi_minus': {'01': 0.1, '10': 0.10}\n    }\n    assert isinstance(jobs, dict)\n    assert set(jobs.keys()) == set(reference_data.keys())\n    for state, job in jobs.items():\n        assert isinstance(job, PrimitiveJob)\n        assert job.job_id() is not None\n        counts = job.result()[0].data.meas.get_counts()\n        shots = 4096\n        normalized_counts = {k: v/shots for k, v in counts.items()}\n        for key, value in reference_data[state].items():\n            assert isclose(normalized_counts[key], value, atol=1e-01)\n\ncheck(run_jobs_on_batch)"
     },
     {
         "task_id": "qiskitHumanEval/35",
@@ -314,7 +314,7 @@
     {
         "task_id": "qiskitHumanEval/39",
         "prompt": "Initialize a uniform superposition on n qubits and return statevector.\nYou must implement this using a function named `create_uniform_superposition` with the following arguments: n.",
-        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\n\ndef create_uniform_superposition(n):\n    qc = QuantumCircuit(n)\n    qc.h(range(n))\n    return Statevector(qc)\n",
+        "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\n\ndef create_uniform_superposition(n: int) -> Statevector:\n    qc = QuantumCircuit(n)\n    qc.h(range(n))\n    return Statevector(qc)\n",
         "entry_point": "create_uniform_superposition",
         "difficulty_scale": "basic",
         "test": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\ndef check(candidate):\n    from qiskit.quantum_info import state_fidelity\n    from math import sqrt\n    assert round(state_fidelity(candidate(1), [1/sqrt(2)]*2),3)==1\n    assert round(state_fidelity(candidate(2), [0.5]*4),3)==1\n    assert round(state_fidelity(candidate(3), [1/sqrt(8)]*8),3)==1\n\ncheck(create_uniform_superposition)"
@@ -345,11 +345,11 @@
     },
     {
         "task_id": "qiskitHumanEval/43",
-        "prompt": "Instantiate a preset_passmanager using Qiskit using the least busy device available and optimzation level 3. Return the resulting passmanager instance.\nYou must implement this using a function named `generate_pass_manager_obj` with no arguments.",
-        "canonical_solution": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\nfrom qiskit import QuantumCircuit\n\ndef generate_pass_manager_obj():\n    provider = QiskitRuntimeService()\n    backend = provider.least_busy()\n    pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n    return pass_manager\n",
+        "prompt": "Instantiate a preset_passmanager using Qiskit using the least busy device available and optimization level 3. Return the resulting passmanager instance.\nYou must implement this using a function named `generate_pass_manager_obj` with no arguments.",
+        "canonical_solution": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit.transpiler.passmanager import StagedPassManager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\n\ndef generate_pass_manager_obj()-> StagedPassManager:\n    provider = QiskitRuntimeService()\n    backend = provider.least_busy()\n    pass_manager = generate_preset_pass_manager(optimization_level=3, backend=backend)\n    return pass_manager\n",
         "entry_point": "generate_pass_manager_obj",
         "difficulty_scale": "basic",
-        "test": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\nfrom qiskit import QuantumCircuit\ndef check(candidate):\n    from qiskit.transpiler.passmanager import StagedPassManager\n    result = candidate()\n    assert(type(result) == StagedPassManager)\n\ncheck(generate_pass_manager_obj)"
+        "test": "from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\nfrom qiskit_ibm_runtime import QiskitRuntimeService\ndef check(candidate):\n    from qiskit.transpiler.passmanager import StagedPassManager\n    result = candidate()\n    assert(type(result) == StagedPassManager)\n\ncheck(generate_pass_manager_obj)"
     },
     {
         "task_id": "qiskitHumanEval/44",
@@ -449,7 +449,7 @@
     },
     {
         "task_id": "qiskitHumanEval/56",
-        "prompt": "Given two 8-bit integers, design a quantum circuit that acts as a classical NOT gate. Simulate the circuit Qiskit Sampler with the Aer simulator as backend and return the counts of the result.\nYou must implement this using a function named `not_gate` with the following arguments: a.",
+        "prompt": "Given an 8-bit integer, design a quantum circuit that acts as a classical NOT gate. Simulate the circuit Qiskit Sampler with the Aer simulator as backend and return the counts of the result.\nYou must implement this using a function named `not_gate` with the following arguments: a.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit_aer import AerSimulator\nfrom qiskit_ibm_runtime import Sampler\n\ndef not_gate(a):\n    circuit = QuantumCircuit(8)\n    a = format(a, \"08b\")\n    for i in range(8):\n        if a[7-i] == \"0\":\n            circuit.x(i)\n    circuit.measure_all()\n    backend = AerSimulator()\n    sampler = Sampler(mode=backend)\n    result = sampler.run([circuit]).result()\n    return result[0].data.meas.get_counts()\n",
         "entry_point": "not_gate",
         "difficulty_scale": "intermediate",
@@ -570,10 +570,10 @@
     {
         "task_id": "qiskitHumanEval/71",
         "prompt": "Build a Quantum Circuit composed by the gates H in Quantum register 0, Controlled-\u221aX gate in quantum register 0 1, and H gate in quantum register 1.\nYou must implement this using a function named `create_quantum_circuit_based_h0_csx01_h1` with no arguments.",
-        "canonical_solution": "from qiskit import QuantumCircuit\n\ndef create_quantum_circuit_based_h0_csx01_h1():\n    qc = QuantumCircuit(3)\n    qc.h(0)\n    qc.csx(0,1)\n    qc.h(1)\n    return qc\n",
+        "canonical_solution": "from qiskit import QuantumCircuit\n\ndef create_quantum_circuit_based_h0_csx01_h1():\n    qc = QuantumCircuit(2)\n    qc.h(0)\n    qc.csx(0,1)\n    qc.h(1)\n    return qc\n",
         "entry_point": "create_quantum_circuit_based_h0_csx01_h1",
         "difficulty_scale": "basic",
-        "test": "from qiskit import QuantumCircuit\ndef check(candidate):\n    result = candidate()\n    assert isinstance(result, QuantumCircuit)\n    assert result.num_qubits == 3\n    assert result.depth() == 3\n    assert dict(result.count_ops()) == {\"h\": 2, \"csx\": 1}\n\ncheck(create_quantum_circuit_based_h0_csx01_h1)"
+        "test": "from qiskit import QuantumCircuit\ndef check(candidate):\n    result = candidate()\n    assert isinstance(result, QuantumCircuit)\n    assert result.num_qubits == 2\n    assert result.depth() == 3\n    assert dict(result.count_ops()) == {\"h\": 2, \"csx\": 1}\n\ncheck(create_quantum_circuit_based_h0_csx01_h1)"
     },
     {
         "task_id": "qiskitHumanEval/72",
@@ -749,7 +749,7 @@
         "canonical_solution": "from qiskit.synthesis import synth_clifford_full\nfrom qiskit.quantum_info.random import random_clifford\n\ndef synthesize_clifford_circuit(n_qubits):\n    qc = random_clifford(n_qubits, seed=1234)\n    synthesized_qc = synth_clifford_full(qc)\n    return synthesized_qc\n",
         "entry_point": "synthesize_clifford_circuit",
         "difficulty_scale": "basic",
-        "test": "from qiskit.synthesis import synth_clifford_full\nfrom qiskit.quantum_info.random import random_clifford\ndef check(candidate):\n    from qiskit.quantum_info import Operator\n    n_qubits = 6\n    synthesized_qc = candidate(n_qubits)\n    qc = random_clifford(n_qubits)\n    synthesized_qc = synth_clifford_full(qc)\n    assert Operator(synthesized_qc) == Operator(qc)\n\ncheck(synthesize_clifford_circuit)"
+        "test": "from qiskit.synthesis import synth_clifford_full\nfrom qiskit.quantum_info.random import random_clifford\ndef check(candidate):\n    from qiskit.quantum_info import Operator\n    n_qubits = 6\n    synthesized_qc = candidate(n_qubits)\n    qc = random_clifford(n_qubits, seed=1234)\n    expected = synth_clifford_full(qc)\n    assert Operator(synthesized_qc) == Operator(expected)\n\ncheck(synthesize_clifford_circuit)"
     },
     {
         "task_id": "qiskitHumanEval/94",
@@ -817,11 +817,11 @@
     },
     {
         "task_id": "qiskitHumanEval/102",
-        "prompt": "Transpile the circuit for the phi plus bell state for FakeKyoto, FakeKyiv and FakeAuckland using the level 1 preset pass manager and return the backend name with the lowest number of instructions.\nYou must implement this using a function named `backend_with_least_instructions` with no arguments.",
+        "prompt": "Transpile the circuit for the phi plus bell state for FakeKyoto, FakeKyiv and FakeAuckland using the level 0 preset pass manager and return the backend name with the lowest number of instructions.\nYou must implement this using a function named `backend_with_least_instructions` with no arguments.",
         "canonical_solution": "from qiskit.circuit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeKyoto, FakeKyiv, FakeAuckland\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef backend_with_least_instructions():\n    qc = QuantumCircuit(2)\n    qc.h(0)\n    qc.cx(0, 1)\n    backends = [FakeKyiv(), FakeKyoto(), FakeAuckland()]\n    qc_isa_num_intruc = {}\n    for backend in backends:\n        pm = generate_preset_pass_manager(optimization_level=0, backend=backend)\n        qc_isa_num_intruc[backend.name] = len(pm.run(qc).data)\n    return min(qc_isa_num_intruc, key=qc_isa_num_intruc.get)\n",
         "entry_point": "backend_with_least_instructions",
         "difficulty_scale": "basic",
-        "test": "from qiskit.circuit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeKyoto, FakeKyiv, FakeAuckland\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef check(candidate):\n    backend_can = candidate()\n    assert backend_can in \"fake_auckland\" or \"auckland\" in backend_can\n\ncheck(backend_with_least_instructions)"
+        "test": "from qiskit.circuit import QuantumCircuit\nfrom qiskit_ibm_runtime.fake_provider import FakeKyoto, FakeKyiv, FakeAuckland\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef check(candidate):\n    backend_can = candidate()\n    assert backend_can == \"fake_auckland\" or \"auckland\" in backend_can\n\ncheck(backend_with_least_instructions)"
     },
     {
         "task_id": "qiskitHumanEval/103",
@@ -897,11 +897,11 @@
     },
     {
         "task_id": "qiskitHumanEval/112",
-        "prompt": "Create a quantum circuit using LieTrotter for a list of Pauli strings and times. Each Pauli string is associated with a corresponding time in the 'times' list. The function should return the resulting QuantumCircuit.\nYou must implement this using a function named `create_product_formula_circuit` with the following arguments: pauli_strings, times, order, reps.",
-        "canonical_solution": "from qiskit.quantum_info import Operator\nfrom qiskit.circuit.library import PauliEvolutionGate\nfrom qiskit.synthesis import LieTrotter\nfrom qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Pauli, SparsePauliOp\n\ndef create_product_formula_circuit(pauli_strings, times, order, reps):\n    qc = QuantumCircuit(len(pauli_strings[0]))\n    synthesizer = LieTrotter(reps=reps)\n    for pauli_string, time in zip(pauli_strings, times):\n        pauli = Pauli(pauli_string)\n        hamiltonian = SparsePauliOp(pauli)\n        evolution_gate = PauliEvolutionGate(hamiltonian, time)\n        synthesized_circuit = synthesizer.synthesize(evolution_gate)\n        qc.append(synthesized_circuit.to_gate(), range(len(pauli_string)))\n    return qc\n",
+        "prompt": "Create a quantum circuit using LieTrotter for a list of Pauli strings and times. Each Pauli string is associated with a corresponding time in the 'times' list. The function should return the resulting QuantumCircuit.\nYou must implement this using a function named `create_product_formula_circuit` with the following arguments: pauli_strings, times, reps.",
+        "canonical_solution": "from qiskit.quantum_info import Operator\nfrom qiskit.circuit.library import PauliEvolutionGate\nfrom qiskit.synthesis import LieTrotter\nfrom qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Pauli, SparsePauliOp\n\ndef create_product_formula_circuit(pauli_strings, times, reps):\n    qc = QuantumCircuit(len(pauli_strings[0]))\n    synthesizer = LieTrotter(reps=reps)\n    for pauli_string, time in zip(pauli_strings, times):\n        pauli = Pauli(pauli_string)\n        hamiltonian = SparsePauliOp(pauli)\n        evolution_gate = PauliEvolutionGate(hamiltonian, time)\n        synthesized_circuit = synthesizer.synthesize(evolution_gate)\n        qc.append(synthesized_circuit.to_gate(), range(len(pauli_string)))\n    return qc\n",
         "entry_point": "create_product_formula_circuit",
         "difficulty_scale": "intermediate",
-        "test": "from qiskit.quantum_info import Operator\nfrom qiskit.circuit.library import PauliEvolutionGate\nfrom qiskit.synthesis import LieTrotter\nfrom qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Pauli, SparsePauliOp\ndef check(candidate):\n    pauli_strings = [\"X\", \"Y\", \"Z\"]\n    times = [1.0, 2.0, 3.0]\n    order = 2\n    reps = 1\n\n    def create_solution_circuit(pauli_strings, times, order, reps):\n        qc = QuantumCircuit(len(pauli_strings[0]))\n        synthesizer = LieTrotter(reps=reps)\n        for pauli_string, time in zip(pauli_strings, times):\n            pauli = Pauli(pauli_string)\n            hamiltonian = SparsePauliOp(pauli)\n            evolution_gate = PauliEvolutionGate(hamiltonian, time)\n            synthesized_circuit = synthesizer.synthesize(evolution_gate)\n            qc.append(synthesized_circuit.to_gate(), range(len(pauli_string)))\n        return qc\n\n    solution_circuit = create_solution_circuit(pauli_strings, times, order, reps)\n    candidate_circuit = candidate(pauli_strings, times, order, reps)\n\n    assert Operator(solution_circuit) == Operator(candidate_circuit), \"The candidate circuit does not match the expected solution.\"\n    assert isinstance(candidate_circuit, QuantumCircuit), \"The returned object is not a QuantumCircuit.\"\n\ncheck(create_product_formula_circuit)"
+        "test": "from qiskit.quantum_info import Operator\nfrom qiskit.circuit.library import PauliEvolutionGate\nfrom qiskit.synthesis import LieTrotter\nfrom qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Pauli, SparsePauliOp\ndef check(candidate):\n    pauli_strings = [\"X\", \"Y\", \"Z\"]\n    times = [1.0, 2.0, 3.0]\n    reps = 1\n\n    def create_solution_circuit(pauli_strings, times, reps):\n        qc = QuantumCircuit(len(pauli_strings[0]))\n        synthesizer = LieTrotter(reps=reps)\n        for pauli_string, time in zip(pauli_strings, times):\n            pauli = Pauli(pauli_string)\n            hamiltonian = SparsePauliOp(pauli)\n            evolution_gate = PauliEvolutionGate(hamiltonian, time)\n            synthesized_circuit = synthesizer.synthesize(evolution_gate)\n            qc.append(synthesized_circuit.to_gate(), range(len(pauli_string)))\n        return qc\n\n    solution_circuit = create_solution_circuit(pauli_strings, times, reps)\n    candidate_circuit = candidate(pauli_strings, times, reps)\n\n    assert Operator(solution_circuit) == Operator(candidate_circuit), \"The candidate circuit does not match the expected solution.\"\n    assert isinstance(candidate_circuit, QuantumCircuit), \"The returned object is not a QuantumCircuit.\"\n\ncheck(create_product_formula_circuit)"
     },
     {
         "task_id": "qiskitHumanEval/113",
@@ -1005,7 +1005,7 @@
         "canonical_solution": "from qiskit.converters import circuit_to_gate\n\ndef circ_to_gate(circ):\n    circ_gate = circuit_to_gate(circ)\n    return circ_gate\n",
         "entry_point": "circ_to_gate",
         "difficulty_scale": "basic",
-        "test": "from qiskit.converters import circuit_to_gate\ndef check(candidate):\n    from qiskit import QuantumCircuit, QuantumRegister\n    from qiskit.circuit.gate import Gate\n    from qiskit.quantum_info import Operator\n    from qiskit.circuit.library import ZGate\n    q = QuantumRegister(3, \"q\")\n    circ = QuantumCircuit(q)\n    circ.h(q[0])\n    circ.cx(q[0], q[1])\n    custom_gate = candidate(circ)\n    assert type(custom_gate) == Gate\n    assert custom_gate.num_qubits == 3\n    assert custom_gate.num_clbits == 0\n\n    q = QuantumRegister(1, \"q\")\n    circ = QuantumCircuit(q)\n    circ.h(q)\n    circ.x(q)\n    circ.h(q)\n    hxh_gate = circ_to_gate(circ)\n    hxh_op = Operator(hxh_gate)\n    z_op = Operator(ZGate())\n    assert hxh_op.equiv(z_op)\n\ncheck(circ_to_gate)"
+        "test": "from qiskit.converters import circuit_to_gate\ndef check(candidate):\n    from qiskit import QuantumCircuit, QuantumRegister\n    from qiskit.circuit.gate import Gate\n    from qiskit.quantum_info import Operator\n    from qiskit.circuit.library import ZGate\n    q = QuantumRegister(3, \"q\")\n    circ = QuantumCircuit(q)\n    circ.h(q[0])\n    circ.cx(q[0], q[1])\n    custom_gate = candidate(circ)\n    assert type(custom_gate) == Gate\n    assert custom_gate.num_qubits == 3\n    assert custom_gate.num_clbits == 0\n\n    q = QuantumRegister(1, \"q\")\n    circ = QuantumCircuit(q)\n    circ.h(q)\n    circ.x(q)\n    circ.h(q)\n    hxh_gate = candidate(circ)\n    hxh_op = Operator(hxh_gate)\n    z_op = Operator(ZGate())\n    assert hxh_op.equiv(z_op)\n\ncheck(circ_to_gate)"
     },
     {
         "task_id": "qiskitHumanEval/126",
@@ -1045,7 +1045,7 @@
         "canonical_solution": "from qiskit.circuit import QuantumCircuit\n\ndef inv_circuit(n):\n    qc = QuantumCircuit(n)\n    for i in range(2):\n        qc.h(i+1)\n\n    for i in range(2):\n        qc.cx(i+1, i+2+1)\n    \n    return qc.inverse()\n",
         "entry_point": "inv_circuit",
         "difficulty_scale": "basic",
-        "test": "from qiskit.circuit import QuantumCircuit\ndef check(candidate):\n    n = 5\n    qc_inv = candidate(n)\n\n    expected_qc = QuantumCircuit(n)\n    for i in range(2):\n        expected_qc.h(i+1)\n\n    for i in range(2):\n        expected_qc.cx(i+1, i+2+1)\n    \n    expected_qc_inv = expected_qc.inverse()\n\n    assert qc_inv, QuantumCircuit\n    assert qc_inv == expected_qc_inv\n\ncheck(inv_circuit)"
+        "test": "from qiskit.circuit import QuantumCircuit\ndef check(candidate):\n    n = 5\n    qc_inv = candidate(n)\n\n    expected_qc = QuantumCircuit(n)\n    for i in range(2):\n        expected_qc.h(i+1)\n\n    for i in range(2):\n        expected_qc.cx(i+1, i+2+1)\n    \n    expected_qc_inv = expected_qc.inverse()\n\n    assert isinstance(qc_inv, QuantumCircuit)\n    assert qc_inv == expected_qc_inv\n\ncheck(inv_circuit)"
     },
     {
         "task_id": "qiskitHumanEval/131",
@@ -1097,7 +1097,7 @@
     },
     {
         "task_id": "qiskitHumanEval/137",
-        "prompt": "Return a dataset of density matrices whose 2-qubit entanglement of formation is within given tolerance.\nYou must implement this using a function named `entanglement_dataset` with the following arguments: \u03b5.",
+        "prompt": "Return a dataset of density matrices whose 2-qubit entanglement of formation is greater than or equal to the given tolerance.\nYou must implement this using a function named `entanglement_dataset` with the following arguments: \u03b5.",
         "canonical_solution": "from qiskit.quantum_info import random_density_matrix, entanglement_of_formation\n\ndef entanglement_dataset(\u03b5):\n    entanglement_data = []\n    while len(entanglement_data) <= 9:\n        density_matrix = random_density_matrix(dims = 4)\n        if entanglement_of_formation(density_matrix)>=\u03b5:\n            entanglement_data.append(density_matrix)\n    return entanglement_data\n",
         "entry_point": "entanglement_dataset",
         "difficulty_scale": "intermediate",
@@ -1113,7 +1113,7 @@
     },
     {
         "task_id": "qiskitHumanEval/139",
-        "prompt": "Return the schmidt decomposition coefficients and the subsystem vectors for the given density matrix and partition.\nYou must implement this using a function named `schmidt_test` with the following arguments: data, qargs_B.",
+        "prompt": "Return the schmidt decomposition coefficients and the subsystem vectors for the given statevector and partition.\nYou must implement this using a function named `schmidt_test` with the following arguments: data, qargs_B.",
         "canonical_solution": "from qiskit.quantum_info import schmidt_decomposition\n\ndef schmidt_test(data, qargs_B):\n    return schmidt_decomposition(data, qargs_B)\n",
         "entry_point": "schmidt_test",
         "difficulty_scale": "basic",
