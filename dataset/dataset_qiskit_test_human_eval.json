@@ -298,8 +298,8 @@
     {
         "task_id": "qiskitHumanEval/37",
         "prompt": "from qiskit import QuantumCircuit\nfrom qiskit_aer import AerSimulator\nfrom qiskit_ibm_runtime import Sampler\nfrom qiskit.primitives.containers.primitive_result import PrimitiveResult\ndef bv_algorithm(s: str) -> [list, PrimitiveResult]:\n    \"\"\" Illustrate a Bernstein-Vazirani algorithm routine on Qiskit and run it using Qiskit Sampler with Aer simulator as backend for a string of 0s and 1s. Return the bit strings of the result and the result itself.\n    \"\"\"",
-        "canonical_solution": "\n    qc = QuantumCircuit(len(s) + 1)\n    for index, bit in enumerate(reversed(s)):\n        if bit == \"1\":\n            qc.cx(index, len(s))\n    qc.measure_all()\n    backend = AerSimulator()\n    sampler = Sampler(mode=backend)\n    result= sampler.run([qc], shots=1).result()\n    bitstrings = result[0].data.meas.get_bitstrings()\n    return [bitstrings, result]\n",
-        "test": "def check(candidate):\n    s = \"1111\"\n    result = candidate(s)\n    assert (type(result[0]) == list)\n    assert (len(result[0]) == result[1][0].data.meas.num_shots)\n    assert (type(result[1]) == PrimitiveResult)\n",
+        "canonical_solution": "\n    n = len(s)\n    qc = QuantumCircuit(n + 1)\n    qc.x(n)\n    qc.h(n)\n    for index in range(n):\n        qc.h(index)\n    for index, bit in enumerate(reversed(s)):\n        if bit == \"1\":\n            qc.cx(index, len(s))\n    for index in range(n):\n        qc.h(index)\n    qc.measure_all()\n    backend = AerSimulator()\n    sampler = Sampler(mode=backend)\n    result= sampler.run([qc], shots=1).result()\n    bitstrings = result[0].data.meas.get_bitstrings()\n    return [bitstrings, result]\n",
+        "test": "def check(candidate):\n    s = \"1111\"\n    result = candidate(s)\n    assert (type(result[0]) == list)\n    assert (len(result[0]) == result[1][0].data.meas.num_shots)\n    assert (type(result[1]) == PrimitiveResult)\n    assert (result[0][0][1:] == s)\n",
         "entry_point": "bv_algorithm",
         "difficulty_scale": "intermediate"
     },
