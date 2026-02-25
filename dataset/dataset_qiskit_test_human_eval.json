@@ -1113,7 +1113,7 @@
     },
     {
         "task_id": "qiskitHumanEval/139",
-        "prompt": "from qiskit.quantum_info import schmidt_decomposition\ndef schmidt_test(data, qargs_B):\n    \"\"\" Return the schmidt decomposition coefficients and the subsystem vectors for the given density matrix and partition.\n    \"\"\"",
+        "prompt": "from qiskit.quantum_info import schmidt_decomposition\ndef schmidt_test(data, qargs_B):\n    \"\"\" Return the schmidt decomposition coefficients and the subsystem vectors for the given statevector and partition.\n    \"\"\"",
         "canonical_solution": "\n    return schmidt_decomposition(data, qargs_B)\n",
         "test": "def check(candidate):\n    from qiskit.quantum_info import random_statevector\n    rs = random_statevector(dims = 16)\n    qargs = [0,1]\n    schmidt_decomp = candidate(rs, qargs)\n    for _, item in enumerate(schmidt_decomp):\n        assert item[0]>=0, \"Schmidt coefficients must be real\"\n        assert item[1].dims() == (2,2), \"The dimension of the first subsystem doesn't match\"\n        assert item[2].dims() == (2,2), \"The dimension of the second subsystem doesn't match\"\n",
         "entry_point": "schmidt_test",
