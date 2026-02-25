@@ -313,7 +313,7 @@
     },
     {
         "task_id": "qiskitHumanEval/39",
-        "prompt": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\ndef create_uniform_superposition(n: int) -> QuantumCircuit:\n    \"\"\" Initialize a uniform superposition on n qubits and return statevector.\n    \"\"\"",
+        "prompt": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\ndef create_uniform_superposition(n: int) -> Statevector:\n    \"\"\" Initialize a uniform superposition on n qubits and return statevector.\n    \"\"\"",
         "canonical_solution": "\n    qc = QuantumCircuit(n)\n    qc.h(range(n))\n    return Statevector(qc)\n",
         "test": "def check(candidate):\n    from qiskit.quantum_info import state_fidelity\n    from math import sqrt\n    assert round(state_fidelity(candidate(1), [1/sqrt(2)]*2),3)==1\n    assert round(state_fidelity(candidate(2), [0.5]*4),3)==1\n    assert round(state_fidelity(candidate(3), [1/sqrt(8)]*8),3)==1\n",
         "entry_point": "create_uniform_superposition",
