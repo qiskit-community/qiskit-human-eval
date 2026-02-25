@@ -1097,7 +1097,7 @@
     },
     {
         "task_id": "qiskitHumanEval/137",
-        "prompt": "from qiskit.quantum_info import random_density_matrix, entanglement_of_formation\ndef entanglement_dataset(ε):\n    \"\"\" Return a dataset of density matrices whose 2-qubit entanglement of formation is within given tolerance.\n    \"\"\"",
+        "prompt": "from qiskit.quantum_info import random_density_matrix, entanglement_of_formation\ndef entanglement_dataset(ε):\n    \"\"\" Return a dataset of density matrices whose 2-qubit entanglement of formation is greater than or equal to the given tolerance.\n    \"\"\"",
         "canonical_solution": "\n    entanglement_data = []\n    while len(entanglement_data) <= 9:\n        density_matrix = random_density_matrix(dims = 4)\n        if entanglement_of_formation(density_matrix)>=ε:\n            entanglement_data.append(density_matrix)\n    return entanglement_data\n",
         "test": "def check(candidate):\n    from qiskit.quantum_info import DensityMatrix\n    tol = 0.1\n    can_list = candidate(tol)\n    assert len(can_list) == 10, \"Length of list is not 10\"\n    for _, item in enumerate(can_list):\n        assert isinstance(item, DensityMatrix), \"The list doesn't contain density matrices\"\n        assert entanglement_of_formation(item) >= tol , \" The entanglement of formation is not within tolerance\"\n",
         "entry_point": "entanglement_dataset",

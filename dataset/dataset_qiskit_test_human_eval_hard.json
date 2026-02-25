@@ -1097,7 +1097,7 @@
     },
     {
         "task_id": "qiskitHumanEval/137",
-        "prompt": "Return a dataset of density matrices whose 2-qubit entanglement of formation is within given tolerance.\nYou must implement this using a function named `entanglement_dataset` with the following arguments: \u03b5.",
+        "prompt": "Return a dataset of density matrices whose 2-qubit entanglement of formation is greater than or equal to the given tolerance.\nYou must implement this using a function named `entanglement_dataset` with the following arguments: \u03b5.",
         "canonical_solution": "from qiskit.quantum_info import random_density_matrix, entanglement_of_formation\n\ndef entanglement_dataset(\u03b5):\n    entanglement_data = []\n    while len(entanglement_data) <= 9:\n        density_matrix = random_density_matrix(dims = 4)\n        if entanglement_of_formation(density_matrix)>=\u03b5:\n            entanglement_data.append(density_matrix)\n    return entanglement_data\n",
         "entry_point": "entanglement_dataset",
         "difficulty_scale": "intermediate",
