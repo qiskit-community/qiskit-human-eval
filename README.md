@@ -27,7 +27,7 @@ Install required dependencies using `pip`:
 pip install -r requirements.txt
 ```
 
-`Graphviz` is required for graphical visualization generation, refer to [Graphviz official site](https://graphviz.org/download/) for software download instructions.
+`Graphviz` is required for graphical visualization generation with `qiskitHumanEval/29` & `qiskitHumanEval/123`.  Refer to [Graphviz official site](https://graphviz.org/download/) for software download instructions.
 
 
 ## Contribution Guidelines
