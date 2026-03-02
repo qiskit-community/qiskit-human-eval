@@ -165,7 +165,7 @@ python scripts/test_solutions.py -o stdout | \
 **Security Features:**
 - ⏱️ 30-second timeout per test (prevents infinite loops)
 - 🔒 Isolated namespace execution with restricted builtins
-  - Blocks dangerous functions: `open()`, `eval()`, `exec()`, `compile()`, `breakpoint()`, `input()`
+  - Blocks dangerous functions: `eval()`, `exec()`, `compile()`, `breakpoint()`, `input()`
   - Allows legitimate imports via `__import__` (required for `import` statements)
 - 📝 Comprehensive logging
 - 🛡️ CI/CD hardening: read-only permissions, deterministic hashing, no bytecode caching
