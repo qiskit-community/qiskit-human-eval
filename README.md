@@ -20,6 +20,16 @@ Generate a Quantum Circuit for the given int 'n_qubits' and return it.
 You must implement this using a function named `create_quantum_circuit` with the following arguments: n_qubits.
 ```
 
+## Requirements Setup
+
+Install required dependencies using `pip`:
+```
+pip install -r requirements.txt
+```
+
+`Graphviz` is required for graphical visualization generation with `qiskitHumanEval/29` & `qiskitHumanEval/123`.  Refer to [Graphviz official site](https://graphviz.org/download/) for software download instructions.
+
+
 ## Contribution Guidelines
 
 If you'd like to contribute to the Qiskit HumanEval, please take a look at our [contribution guidelines](CONTRIBUTING.md). By participating, you are expected to uphold our [code of conduct](CODE_OF_CONDUCT.md).
