@@ -893,7 +893,7 @@
         "canonical_solution": "from qiskit.circuit import QuantumCircuit, Parameter\n\ndef circuit():\n    qc = QuantumCircuit(1)\n    p1 = Parameter(\"p1\")\n    p2 = Parameter(\"p2\")\n    qc.rx(p1,0)\n    qc.ry(p2,0)\n    return qc\n",
         "entry_point": "circuit",
         "difficulty_scale": "intermediate",
-        "test": "from qiskit.circuit import QuantumCircuit, Parameter\ndef check(candidate):\n    assert candidate().num_parameters >= 2 , \"The circuit doesn't cover the bloch sphere.\"\n    assert candidate().num_parameters <= 5 , \"The circuit is too long\"\n\ncheck(circuit)"
+        "test": "import numpy as np\nfrom qiskit.circuit import QuantumCircuit, Parameter\nfrom qiskit.quantum_info import Statevector\ndef check(candidate):\n    qc = candidate()\n    assert qc.num_parameters >= 2 , \"The circuit doesn't cover the bloch sphere.\"\n    assert qc.num_parameters <= 5 , \"The circuit is too long\"\n    target = Statevector.from_label(\"1\")\n    bound_qc = qc.assign_parameters({qc.parameters[0]: np.pi, qc.parameters[1]: np.pi})\n    sv = Statevector.from_instruction(bound_qc)\n    fidelity = np.abs(np.vdot(target.data, sv.data))**2\n    assert fidelity < 1e-10, \"The circuit should not be able to reach the South Pole.\"\n\ncheck(circuit)"
     },
     {
         "task_id": "qiskitHumanEval/112",
