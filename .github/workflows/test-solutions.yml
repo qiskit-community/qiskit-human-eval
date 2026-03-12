@@ -1,0 +1,44 @@
+name: Test Solutions
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'dataset/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'dataset/**'
+
+# Restrict default GITHUB_TOKEN permissions to read-only
+# The test runner only needs to read the repository contents
+permissions:
+  contents: read
+
+jobs:
+  test-solutions:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: pip install --no-cache-dir -r requirements.txt
+
+    - name: Test canonical solutions
+      # PYTHONHASHSEED=0: deterministic hashing for reproducible test runs
+      # PYTHONDONTWRITEBYTECODE=1: prevent writing .pyc files during exec()
+      env:
+        PYTHONHASHSEED: "0"
+        PYTHONDONTWRITEBYTECODE: "1"
+      run: python scripts/test_solutions.py
+
+# Made with Bob

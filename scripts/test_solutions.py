@@ -176,8 +176,34 @@ def test_problem(
         #
         # See: security-analysis-exec.md for detailed security analysis
 
-        # Execute the code in a restricted namespace with timeout protection
-        namespace: dict[str, Any] = {}
+        # Build a restricted builtins dict by copying the real builtins and
+        # removing functions that could be used to escape the sandbox, access
+        # the filesystem, spawn processes, or execute further arbitrary code.
+        # Note: this is a defence-in-depth measure — the primary trust boundary
+        # is the version-controlled, code-reviewed dataset.
+        #
+        # Note: __import__ must remain available — Python's 'import' statement
+        # calls it internally. Blocking it would break all imports inside exec().
+        import builtins as _builtins
+
+        _BLOCKED_BUILTINS = {
+            # "open",         # filesystem read/write // needed by qiskitHumanEval/82
+            "exec",         # nested arbitrary code execution
+            "eval",         # expression-level arbitrary execution
+            "compile",      # bytecode compilation (precursor to exec/eval)
+            "breakpoint",   # drops into debugger / pdb shell
+            "input",        # blocks on stdin in CI; not needed by solutions
+        }
+        restricted_builtins = {
+            k: v
+            for k, v in vars(_builtins).items()
+            if k not in _BLOCKED_BUILTINS
+        }
+
+        # Execute the code in a restricted namespace with timeout protection.
+        # Passing __builtins__ explicitly prevents exec() from injecting the
+        # full built-in scope automatically.
+        namespace: dict[str, Any] = {"__builtins__": restricted_builtins}
 
         logger.debug(f"Executing code for {task_id} with {EXECUTION_TIMEOUT_SECONDS}s timeout")
         with timeout(EXECUTION_TIMEOUT_SECONDS):
@@ -494,7 +520,7 @@ def print_test_summary(
         logger.info(f"Testing failed with {len(total_failures)} failure(s)")
 
         for dataset, failure in total_failures[:max_failures_to_show]:
-            print(f"    {failure['task_id']} in {dataset}:")
+            print(f"\n  ✗ {failure['task_id']} in {dataset}:")
             error_lines = failure["error"].split("\n")
             # Show first N lines of error, then truncate if too long
             for line in error_lines[:max_error_lines_to_show]:
