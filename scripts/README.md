@@ -164,8 +164,11 @@ python scripts/test_solutions.py -o stdout | \
 
 **Security Features:**
 - ⏱️ 30-second timeout per test (prevents infinite loops)
-- 🔒 Isolated namespace execution
+- 🔒 Isolated namespace execution with restricted builtins
+  - Blocks dangerous functions: `eval()`, `exec()`, `compile()`, `breakpoint()`, `input()`
+  - Allows legitimate imports via `__import__` (required for `import` statements)
 - 📝 Comprehensive logging
+- 🛡️ CI/CD hardening: read-only permissions, deterministic hashing, no bytecode caching
 
 **Output:**
 - Success: Returns 0, prints summary of test results
@@ -258,13 +261,21 @@ python scripts/test_solutions.py -v -o stdout     # Verbose suppressed (by desig
 
 ## CI/CD Integration
 
-These scripts are automatically called by GitHub Actions workflows:
+These scripts are automatically called by GitHub Actions workflows on every push and pull request that modifies files under `dataset/`:
 
 ### Validation Workflow
 - `.github/workflows/validate-dataset.yml` → calls `validate_dataset.py`
-  - Runs on: dataset file changes
-  - Installs: Only Python (no dependencies needed)
+  - Runs on: `dataset/**` changes (push to `main`, PRs targeting `main`)
+  - Installs: Only Python (no extra dependencies needed)
   - Purpose: Validates JSON structure and required fields
+
+### Test Solutions Workflow
+- `.github/workflows/test-solutions.yml` → calls `test_solutions.py`
+  - Runs on: `dataset/**` changes (push to `main`, PRs targeting `main`)
+  - Installs: Python + all dependencies from `requirements.txt` (Qiskit, etc.)
+  - Purpose: Executes all canonical solutions against their test cases to verify correctness
+  - Runtime: ~45 seconds for the full dataset
+  - Exit code: `0` (all pass) or `1` (one or more failures) — blocks PR merge on failure
 
 ## Adding New Scripts
 
