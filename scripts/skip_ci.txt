@@ -17,6 +17,3 @@ qiskitHumanEval/146
 
 # Hardcoded expected value is platform & version sensitive
 qiskitHumanEval/104
-
-# Missing qiskit_qasm3_import
-qiskitHumanEval/94
