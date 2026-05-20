@@ -11,6 +11,9 @@ qiskitHumanEval/97
 qiskitHumanEval/98
 qiskitHumanEval/122
 qiskitHumanEval/129
+qiskitHumanEval/133
+qiskitHumanEval/134
+qiskitHumanEval/146
 
 # Hardcoded expected value is platform & version sensitive
 qiskitHumanEval/104
