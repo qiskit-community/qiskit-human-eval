@@ -85,6 +85,7 @@ Options:
   -d, --dataset <path>       Test problems in a specific dataset
   -t, --task <task_id>       Test a specific problem (searches all datasets)
   -e, --exclude-prompt       Exclude prompt from execution (for specific dataset)
+  -s, --skip-file <path>     Path to file listing task IDs to skip (one per line)
   -v, --verbose              Enable detailed logging
   -o, --output <file>        Write JSON results to file (use "stdout" or "-" to pipe)
   -h, --help                 Show help message
@@ -106,6 +107,9 @@ python scripts/test_solutions.py -v
 
 # Exclude prompt from execution
 python scripts/test_solutions.py -e -d dataset/custom.json
+
+# Skip tasks identified in the skip file (default: scripts/skip_ci.txt)
+python scripts/test_solutions.py --skip-file scripts/skip_ci.txt
 
 # Save results to JSON file
 python scripts/test_solutions.py -o results.json
