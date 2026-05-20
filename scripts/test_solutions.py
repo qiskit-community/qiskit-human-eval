@@ -82,6 +82,22 @@ DEFAULT_DATASETS = [
     (Path("dataset/dataset_qiskit_test_human_eval_hard.json"), True),
 ]
 
+# Default skip file path
+DEFAULT_SKIP_FILE = Path("scripts/skip_ci.txt")
+
+
+def load_skip_list(filepath: Path) -> set[str]:
+    """Load task IDs to skip from a text file. One ID per line, # for comments."""
+    if not filepath.exists():
+        return set()
+    skip_ids = set()
+    with filepath.open() as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                skip_ids.add(line)
+    return skip_ids
+
 
 @contextmanager
 def timeout(seconds: int):
@@ -236,8 +252,11 @@ def test_problem(
 
 
 def test_dataset(
-    filepath: Path, task_id_filter: str | None = None, exclude_prompt: bool = False
-) -> tuple[int, list[dict[str, str]]]:
+    filepath: Path,
+    task_id_filter: str | None = None,
+    exclude_prompt: bool = False,
+    skip_ids: set[str] | None = None,
+) -> tuple[int, int, list[dict[str, str]]]:
     """
     Test all canonical solutions in a dataset.
 
@@ -251,15 +270,20 @@ def test_dataset(
                                                   all problems. Defaults to None.
         exclude_prompt (bool, optional): If True, don't prepend prompt to execution.
                                         Defaults to False.
+        skip_ids (Optional[set[str]]): Task IDs to skip.
 
     Returns:
-        tuple[int, list[dict[str, str]]]: A tuple containing:
+        tuple[int, int, list[dict[str, str]]]: A tuple containing:
             - passed_count (int): Number of problems that passed
+            - skipped_count (int): Number of problems that were skipped
             - failures (list[dict]): List of failure dicts, each with:
                 - 'task_id' (str): The failing task identifier
                 - 'error' (str): Detailed error message
     """
     logger.info(f"Loading dataset: {filepath}")
+
+    if skip_ids is None:
+        skip_ids = set()
 
     try:
         with filepath.open() as f:
@@ -267,12 +291,13 @@ def test_dataset(
         logger.debug(f"Loaded {len(data)} problems from {filepath}")
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in {filepath}: {e}")
-        return 0, [{"task_id": "N/A", "error": f"Invalid JSON: {e}"}]
+        return 0, 0, [{"task_id": "N/A", "error": f"Invalid JSON: {e}"}]
     except FileNotFoundError:
         logger.error(f"File not found: {filepath}")
-        return 0, [{"task_id": "N/A", "error": f"File not found: {filepath}"}]
+        return 0, 0, [{"task_id": "N/A", "error": f"File not found: {filepath}"}]
 
     passed = 0
+    skipped = 0
     failures = []
     found = False
 
@@ -285,6 +310,11 @@ def test_dataset(
                 continue
             found = True
             logger.debug(f"Found target task: {task_id}")
+
+        if task_id in skip_ids:
+            logger.info(f"⊘ {task_id} skipped")
+            skipped += 1
+            continue
 
         # Validate problem structure first
         required_fields = {"task_id", "prompt", "canonical_solution", "test", "entry_point"}
@@ -313,10 +343,10 @@ def test_dataset(
     # If filtering by task_id and not found, return error
     if task_id_filter is not None and not found:
         logger.warning(f"Task {task_id_filter} not found in {filepath}")
-        return 0, [{"task_id": task_id_filter, "error": f"Task not found in {filepath}"}]
+        return 0, 0, [{"task_id": task_id_filter, "error": f"Task not found in {filepath}"}]
 
-    logger.info(f"Dataset {filepath}: {passed} passed, {len(failures)} failed")
-    return passed, failures
+    logger.info(f"Dataset {filepath}: {passed} passed, {skipped} skipped, {len(failures)} failed")
+    return passed, skipped, failures
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -382,6 +412,15 @@ def parse_arguments() -> argparse.Namespace:
         dest="output",
         default=None,
         help='Write test results to JSON file (use "stdout" or "-" to pipe to stdout)',
+    )
+
+    parser.add_argument(
+        "-s",
+        "--skip-file",
+        metavar="<skip file path>",
+        dest="skip_file",
+        default=None,
+        help="Path to file listing task IDs to skip (one per line, # for comments)",
     )
 
     return parser.parse_args()
@@ -478,6 +517,7 @@ def write_json_output(
 def print_test_summary(
     total_passed: int,
     total_tested: int,
+    total_skipped: int,
     total_failures: list[tuple[Path, dict[str, str]]],
     task_id_filter: str | None,
     dataset_filter: Path | None,
@@ -505,15 +545,16 @@ def print_test_summary(
         int: Exit code - 0 for success, 1 for failure
     """
     # Print summary based on filter type
+    skipped_msg = f", {total_skipped} skipped" if total_skipped else ""
     if task_id_filter:
         if task_found_count > 0:
             logger.info(f"Result: {total_passed} passed in {task_found_count} dataset(s)")
         else:
             logger.info(f"Result: Task {task_id_filter} not found in any dataset")
     elif dataset_filter:
-        logger.info(f"Results: {total_passed}/{total_tested} passed in {dataset_filter}")
+        logger.info(f"Results: {total_passed}/{total_tested} passed{skipped_msg} in {dataset_filter}")
     else:
-        logger.info(f"Results: {total_passed}/{total_tested} passed")
+        logger.info(f"Results: {total_passed}/{total_tested} passed{skipped_msg}")
 
     # Print failure details if any
     if total_failures:
@@ -587,6 +628,11 @@ def main(
     dataset_filter = Path(args.dataset) if args.dataset else None
     task_id_filter = args.task
     exclude_prompt = args.exclude
+    skip_file = Path(args.skip_file) if args.skip_file else DEFAULT_SKIP_FILE
+    skip_ids = load_skip_list(skip_file)
+
+    if skip_ids:
+        logger.info(f"Loaded {len(skip_ids)} task(s) to skip from {skip_file}")
 
     logger.debug(
         f"Arguments: dataset={dataset_filter}, task={task_id_filter}, exclude_prompt={exclude_prompt}"
@@ -614,6 +660,7 @@ def main(
         logger.info(f"Using default datasets: {[str(d) for d, _ in datasets]}")
 
     total_passed = 0
+    total_skipped = 0
     total_failures: list[tuple[Path, dict[str, str]]] = []
     dataset_results: dict[Path, dict[str, Any]] = {}
     task_found_count = 0
@@ -628,13 +675,17 @@ def main(
         else:
             logger.debug(f"Testing all problems in {dataset}")
 
-        passed, failures = test_dataset(
-            dataset, task_id_filter=task_id_filter, exclude_prompt=exclude_prompts
+        passed, skipped, failures = test_dataset(
+            dataset,
+            task_id_filter=task_id_filter,
+            exclude_prompt=exclude_prompts,
+            skip_ids=skip_ids,
         )
 
         dataset_results[dataset] = {
             "passed": passed,
-            "total": passed + len(failures),
+            "skipped": skipped,
+            "total": passed + skipped + len(failures),
             "failures": failures,
         }
 
@@ -643,6 +694,7 @@ def main(
             task_found_count += 1
 
         total_passed += passed
+        total_skipped += skipped
         total_failures.extend([(dataset, f) for f in failures])
 
     # Calculate execution time
@@ -676,6 +728,7 @@ def main(
         exit_code = print_test_summary(
             total_passed=total_passed,
             total_tested=total_tested,
+            total_skipped=total_skipped,
             total_failures=total_failures,
             task_id_filter=task_id_filter,
             dataset_filter=dataset_filter,
