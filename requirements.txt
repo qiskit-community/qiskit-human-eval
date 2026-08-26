@@ -7,7 +7,7 @@ huggingface_hub>=0.11.1
 fsspec<2023.10.0
 matplotlib==3.10.1
 numpy==2.2.4
-qiskit>=2.1.0
+qiskit==2.4.2
 qiskit-aer==0.17.0
 qiskit-ibm-runtime==0.45.0
 qiskit_qasm3_import==0.5.0
