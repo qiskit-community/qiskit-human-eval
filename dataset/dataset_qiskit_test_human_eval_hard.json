@@ -849,7 +849,7 @@
     },
     {
         "task_id": "qiskitHumanEval/106",
-        "prompt": "Create two Quantum Circuits of 2 qubits. First quantum circuit should have a cx gate on qubits 0 and 1 and a T gate on qubit 0. The second one is the same but with an additional X gate on qubit 1. Convert the two quantum circuits into CNOTDihedral elements and return the composed circuit.\nYou must implement this using a function named `compose_cnot_dihedral` with no arguments.",
+        "prompt": "Create two Quantum Circuits of 2 qubits. First quantum circuit should have a cx gate on qubits 0 and 1 and a T gate on qubit 0. The second one is the same but with an additional X gate on qubit 1. Convert the two quantum circuits into CNOTDihedral elements and return the composed element as a CNOTDihedral.\nYou must implement this using a function named `compose_cnot_dihedral` with no arguments.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import CNOTDihedral\n\ndef compose_cnot_dihedral():\n    circ1 = QuantumCircuit(2)\n    # Apply gates\n    circ1.cx(0, 1)\n    circ1.t(0)\n    elem1 = CNOTDihedral(circ1)\n    circ2 = circ1.copy()\n    circ2.x(1)\n    elem2 = CNOTDihedral(circ2)\n    composed_elem = elem1.compose(elem2)\n    return composed_elem\n",
         "entry_point": "compose_cnot_dihedral",
         "difficulty_scale": "intermediate",
