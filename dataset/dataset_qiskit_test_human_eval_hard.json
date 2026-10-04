@@ -209,7 +209,7 @@
     },
     {
         "task_id": "qiskitHumanEval/26",
-        "prompt": "Construct a DAG circuit for a 3-qubit Quantum Circuit with the bell state applied on qubit 0 and 1. Finally return the DAG Circuit object.\nYou must implement this using a function named `bell_dag` with no arguments.",
+        "prompt": "Construct a DAG circuit for a 3-qubit Quantum Circuit with the bell state applied on qubit 0 and 1 and a measurement of one of the two Bell-state qubits. Finally return the DAG Circuit object.\nYou must implement this using a function named `bell_dag` with no arguments.",
         "canonical_solution": "from qiskit.dagcircuit import DAGCircuit\nfrom qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit\nfrom qiskit.converters import circuit_to_dag\n\ndef bell_dag():\n    q = QuantumRegister(3, 'q')\n    c = ClassicalRegister(3, 'c')\n    circ = QuantumCircuit(q, c)\n    circ.h(q[0])\n    circ.cx(q[0], q[1])\n    circ.measure(q[0], c[0])\n    dag = circuit_to_dag(circ)\n    return dag\n",
         "entry_point": "bell_dag",
         "difficulty_scale": "basic",
