@@ -89,7 +89,7 @@
     },
     {
         "task_id": "qiskitHumanEval/11",
-        "prompt": "Return the statevector from a circuit.\nYou must implement this using a function named `get_statevector` with the following arguments: circuit.",
+        "prompt": "Return the statevector as a `Statevector` object from a circuit.\nYou must implement this using a function named `get_statevector` with the following arguments: circuit.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\n\ndef get_statevector(circuit):\n    sv = Statevector.from_instruction(circuit)\n    return sv\n",
         "entry_point": "get_statevector",
         "difficulty_scale": "basic",
