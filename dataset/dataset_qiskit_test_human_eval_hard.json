@@ -121,7 +121,7 @@
     },
     {
         "task_id": "qiskitHumanEval/15",
-        "prompt": "Transpile a bell circuit using pass manager with optimization level as 1, run it using Qiskit Sampler with the Aer simulator as backend and get the execution counts.\nYou must implement this using a function named `noisy_bell` with no arguments.",
+        "prompt": "Transpile a bell circuit using pass manager with optimization level as 1, run it using Qiskit Sampler with the fake noisy backend FakeBelemV2 as backend and get the execution counts.\nYou must implement this using a function named `noisy_bell` with no arguments.",
         "canonical_solution": "from qiskit_ibm_runtime.fake_provider import FakeBelemV2\nfrom qiskit_ibm_runtime import Sampler\nfrom qiskit_aer import AerSimulator\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef noisy_bell():\n    bell = QuantumCircuit(2)\n    bell.h(0)\n    bell.cx(0, 1)\n    bell.measure_all()\n    device_backend = FakeBelemV2()\n    simulator = AerSimulator.from_backend(device_backend)\n    pass_manager = generate_preset_pass_manager(optimization_level=1, backend=simulator)\n    bell_circ = pass_manager.run(bell)\n    sampler = Sampler(mode=simulator)\n    result = sampler.run([bell_circ], shots=1000).result()\n    counts = result[0].data.meas.get_counts()\n    return counts\n",
         "entry_point": "noisy_bell",
         "difficulty_scale": "basic",
