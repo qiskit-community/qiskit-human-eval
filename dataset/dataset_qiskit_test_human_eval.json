@@ -209,7 +209,7 @@
     },
     {
         "task_id": "qiskitHumanEval/26",
-        "prompt": "from qiskit.dagcircuit import DAGCircuit\nfrom qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit\nfrom qiskit.converters import circuit_to_dag\ndef bell_dag() -> DAGCircuit:\n    \"\"\" Construct a DAG circuit for a 3-qubit Quantum Circuit with the bell state applied on qubit 0 and 1. Finally return the DAG Circuit object.\n    \"\"\"",
+        "prompt": "from qiskit.dagcircuit import DAGCircuit\nfrom qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit\nfrom qiskit.converters import circuit_to_dag\ndef bell_dag() -> DAGCircuit:\n    \"\"\" Construct a DAG circuit for a 3-qubit Quantum Circuit with the bell state applied on qubit 0 and 1 and a measurement of one of the two Bell-state qubits. Finally return the DAG Circuit object.\n    \"\"\"",
         "canonical_solution": "\n    q = QuantumRegister(3, 'q')\n    c = ClassicalRegister(3, 'c')\n    circ = QuantumCircuit(q, c)\n    circ.h(q[0])\n    circ.cx(q[0], q[1])\n    circ.measure(q[0], c[0])\n    dag = circuit_to_dag(circ)\n    return dag\n",
         "test": "def check(candidate):\n    result = candidate()\n    assert type(result) == DAGCircuit, f\"Expected DAGCircuit, got {type(result).__name__}\"\n    assert result.num_qubits() == 3, \"Unexpected result value\"\n    assert result.depth() == 3, f\"Expected depth 3, got {result.depth()}\"\n    assert dict(result.count_ops()) == {'h': 1, 'cx': 1, 'measure':1}, \"Unexpected result value\"\n",
         "entry_point": "bell_dag",
