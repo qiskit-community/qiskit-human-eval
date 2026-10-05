@@ -1025,7 +1025,7 @@
     },
     {
         "task_id": "qiskitHumanEval/128",
-        "prompt": "Create a quantum circuit with 4 qubits and 4 classical bits. Apply Hadamard gates to the first three qubits, measure them with three classical registers,\nand conditionally apply an X gate to the fourth qubit based on the XOR of the three classical bits. Finally, measure the fourth qubit into another classical register.\nYou must implement this using a function named `conditional_quantum_circuit` with no arguments.",
+        "prompt": "Create a quantum circuit with 4 qubits and 4 classical bits. Apply Hadamard gates to the first three qubits, measure them, and apply an X gate to the fourth qubit inside a single conditional block whose condition is the XOR of the three measured bits. Finally, measure the fourth qubit. Use a single classical register named `c` holding all four classical bits, with qubit i measured into bit i.\nYou must implement this using a function named `conditional_quantum_circuit` with no arguments.",
         "canonical_solution": "from qiskit.circuit import QuantumCircuit, QuantumRegister, ClassicalRegister\nfrom qiskit.circuit.classical import expr\n\ndef conditional_quantum_circuit():\n    qr = QuantumRegister(4, \"q\")\n    cr = ClassicalRegister(4, \"c\")\n    circ = QuantumCircuit(qr, cr)\n\n    circ.h(qr[0:3])\n    circ.measure(qr[0:3], cr[0:3])\n\n    _condition = expr.bit_xor(expr.bit_xor(cr[0], cr[1]), cr[2])\n    with circ.if_test(_condition):\n        circ.x(qr[3])\n\n    circ.measure(qr[3], cr[3])\n\n    return circ\n",
         "entry_point": "conditional_quantum_circuit",
         "difficulty_scale": "basic",
