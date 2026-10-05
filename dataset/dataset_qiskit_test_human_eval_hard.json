@@ -25,7 +25,7 @@
     },
     {
         "task_id": "qiskitHumanEval/3",
-        "prompt": "Generate a QuantumCircuit for a 3 qubit GHZ State and measure it. If `drawing` is True, return both the circuit object and the Matplotlib drawing of the circuit, otherwise return just the circuit object.\nYou must implement this using a function named `create_ghz` with the following arguments: drawing.",
+        "prompt": "Generate a QuantumCircuit for a 3 qubit GHZ State and measure it. If `drawing` is True, return both the circuit object and the Matplotlib drawing of the circuit, otherwise return just the circuit object.\n`drawing` defaults to False.\nYou must implement this using a function named `create_ghz` with the following arguments: drawing.",
         "canonical_solution": "from qiskit import QuantumCircuit\n\ndef create_ghz(drawing=False):\n    ghz = QuantumCircuit(3)\n    ghz.h(0)\n    ghz.cx(0, 1)\n    ghz.cx(0, 2)\n    ghz.measure_all()\n    if drawing:\n        return ghz, ghz.draw(output=\"mpl\")\n    return ghz",
         "entry_point": "create_ghz",
         "difficulty_scale": "basic",
@@ -89,7 +89,7 @@
     },
     {
         "task_id": "qiskitHumanEval/11",
-        "prompt": "Return the statevector from a circuit.\nYou must implement this using a function named `get_statevector` with the following arguments: circuit.",
+        "prompt": "Return the statevector as a `Statevector` object from a circuit.\nYou must implement this using a function named `get_statevector` with the following arguments: circuit.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import Statevector\n\ndef get_statevector(circuit):\n    sv = Statevector.from_instruction(circuit)\n    return sv\n",
         "entry_point": "get_statevector",
         "difficulty_scale": "basic",
@@ -121,7 +121,7 @@
     },
     {
         "task_id": "qiskitHumanEval/15",
-        "prompt": "Transpile a bell circuit using pass manager with optimization level as 1, run it using Qiskit Sampler with the Aer simulator as backend and get the execution counts.\nYou must implement this using a function named `noisy_bell` with no arguments.",
+        "prompt": "Transpile a bell circuit using pass manager with optimization level as 1, run it using Qiskit Sampler with the fake noisy backend FakeBelemV2 as backend and get the execution counts.\nYou must implement this using a function named `noisy_bell` with no arguments.",
         "canonical_solution": "from qiskit_ibm_runtime.fake_provider import FakeBelemV2\nfrom qiskit_ibm_runtime import Sampler\nfrom qiskit_aer import AerSimulator\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef noisy_bell():\n    bell = QuantumCircuit(2)\n    bell.h(0)\n    bell.cx(0, 1)\n    bell.measure_all()\n    device_backend = FakeBelemV2()\n    simulator = AerSimulator.from_backend(device_backend)\n    pass_manager = generate_preset_pass_manager(optimization_level=1, backend=simulator)\n    bell_circ = pass_manager.run(bell)\n    sampler = Sampler(mode=simulator)\n    result = sampler.run([bell_circ], shots=1000).result()\n    counts = result[0].data.meas.get_counts()\n    return counts\n",
         "entry_point": "noisy_bell",
         "difficulty_scale": "basic",
@@ -209,7 +209,7 @@
     },
     {
         "task_id": "qiskitHumanEval/26",
-        "prompt": "Construct a DAG circuit for a 3-qubit Quantum Circuit with the bell state applied on qubit 0 and 1. Finally return the DAG Circuit object.\nYou must implement this using a function named `bell_dag` with no arguments.",
+        "prompt": "Construct a DAG circuit for a 3-qubit Quantum Circuit with the bell state applied on qubit 0 and 1 and a measurement of one of the two Bell-state qubits. Finally return the DAG Circuit object.\nYou must implement this using a function named `bell_dag` with no arguments.",
         "canonical_solution": "from qiskit.dagcircuit import DAGCircuit\nfrom qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit\nfrom qiskit.converters import circuit_to_dag\n\ndef bell_dag():\n    q = QuantumRegister(3, 'q')\n    c = ClassicalRegister(3, 'c')\n    circ = QuantumCircuit(q, c)\n    circ.h(q[0])\n    circ.cx(q[0], q[1])\n    circ.measure(q[0], c[0])\n    dag = circuit_to_dag(circ)\n    return dag\n",
         "entry_point": "bell_dag",
         "difficulty_scale": "basic",
@@ -273,7 +273,7 @@
     },
     {
         "task_id": "qiskitHumanEval/34",
-        "prompt": "Generate all four Bell states and execute them on the FakeAlgiers backend using SamplerV2 with batch mode. Each Bell state circuit will be transpiled with an optimization level of 3, with the seed 123 for the transpiler.\nReturns a dictionary where the keys are the Bell state names ['phi_plus', 'phi_minus', 'psi_plus', 'psi_minus'] and the values are the corresponding RuntimeJob objects and the batch id.\nYou must implement this using a function named `run_jobs_on_batch` with no arguments.",
+        "prompt": "Generate all four Bell states and execute them on the FakeAlgiers backend using SamplerV2 with batch mode. Each Bell state circuit will be transpiled with an optimization level of 3, with the seed 123 for the transpiler.\nReturns a dictionary where the keys are the Bell state names ['phi_plus', 'phi_minus', 'psi_plus', 'psi_minus'] and the values are the corresponding RuntimeJob objects.\nYou must implement this using a function named `run_jobs_on_batch` with no arguments.",
         "canonical_solution": "from qiskit_ibm_runtime import Batch, Sampler\nfrom qiskit.primitives.primitive_job import PrimitiveJob\nfrom qiskit_ibm_runtime.fake_provider import FakeAlgiers\nfrom qiskit.transpiler import CouplingMap\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\n\ndef run_jobs_on_batch():\n    def create_bell_circuit(state):\n        \"Helper function to create bell state\"\n        qc = QuantumCircuit(2)\n        qc.h(0) \n        qc.cx(0, 1)\n        if state == \"phi_minus\":\n            qc.z(0)\n        elif state == \"psi_plus\":\n            qc.x(1)\n        elif state == \"psi_minus\":\n            qc.x(1)\n            qc.z(0)\n        qc.measure_all()\n        return qc\n        \n    # Create bell states\n    bell_states = [\"phi_plus\", \"phi_minus\", \"psi_plus\", \"psi_minus\"]\n    circuits = [create_bell_circuit(state) for state in bell_states]\n\n    # Setting backend and pass managers\n    backend = FakeAlgiers()\n    coupling_map = CouplingMap(backend.configuration().coupling_map)\n    pm = generate_preset_pass_manager(optimization_level = 3, backend=backend, seed_transpiler=123, coupling_map=coupling_map)\n\n    # Running jobs using batch\n    with Batch(backend=backend) as batch:\n        jobs = {}\n        sampler = Sampler(mode=batch)\n        for bell_state, bell_circuit in zip(bell_states, circuits):\n            isa_bell_circuit = pm.run(bell_circuit)\n            jobs[bell_state] = sampler.run([(isa_bell_circuit)])\n        return jobs\n",
         "entry_point": "run_jobs_on_batch",
         "difficulty_scale": "difficult",
@@ -409,7 +409,7 @@
     },
     {
         "task_id": "qiskitHumanEval/51",
-        "prompt": "Write a function to build a quantum teleportation circuit that takes a list of instructions as an argument to transfer the data from the sender to the receiver while taking advantage of dynamic circuits.\nYou must implement this using a function named `quantum_teleportation_circuit` with the following arguments: data.",
+        "prompt": "Write a function to build a quantum teleportation circuit that takes a list of instructions as an argument to transfer the data from the sender to the receiver while taking advantage of dynamic circuits.\nYou must implement this using a function named `quantum_teleportation_circuit` with the following arguments: data.\nMeasure the receiver's qubit into its own 1-bit classical register named `c_receiver`.",
         "canonical_solution": "from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit\nfrom qiskit.circuit import Instruction\n\ndef quantum_teleportation_circuit(data):\n    sender = QuantumRegister(1, \"sender\")\n    receiver = QuantumRegister(1, \"receiver\")\n    ancillary = QuantumRegister(1, \"ancillary\")\n    c_sender = ClassicalRegister(1, \"c_sender\")\n    c_receiver = ClassicalRegister(1, \"c_receiver\")\n    c_ancillary = ClassicalRegister(1, \"c_ancillary\")\n    circuit = QuantumCircuit(sender, ancillary, receiver, c_sender, c_ancillary, c_receiver)\n    for gate in data:\n        circuit.append(gate, [0])\n    circuit.barrier()\n    circuit.h(ancillary)\n    circuit.cx(ancillary, receiver)\n    circuit.barrier()\n    circuit.cx(sender, ancillary)\n    circuit.h(sender)\n    circuit.measure(sender, c_sender)\n    circuit.measure(ancillary, c_ancillary)\n    circuit.barrier()\n    with circuit.if_test((c_ancillary, 1)):\n        circuit.x(receiver)\n    with circuit.if_test((c_sender, 1)):\n        circuit.z(receiver)\n    circuit.barrier()\n    circuit.measure(receiver, c_receiver)\n    return circuit\n",
         "entry_point": "quantum_teleportation_circuit",
         "difficulty_scale": "intermediate",
@@ -417,7 +417,7 @@
     },
     {
         "task_id": "qiskitHumanEval/52",
-        "prompt": "Provide a quantum circuit that enables the transmission of two classical bits from the sender to the receiver through a single qubit of quantum communication, given that the sender and receiver have access to entangled qubits.\nYou must implement this using a function named `send_bits` with the following arguments: bitstring.",
+        "prompt": "Provide a quantum circuit that enables the transmission of two classical bits from the sender to the receiver through a single qubit of quantum communication, given that the sender and receiver have access to entangled qubits. Name the classical register that holds the two measured bits `measure`. The first character of `bitstring` selects the X correction and the second selects the Z correction; the measured bits read out with the sender's qubit as the least significant bit.\nYou must implement this using a function named `send_bits` with the following arguments: bitstring.",
         "canonical_solution": "from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit\n\ndef send_bits(bitstring):\n    sender = QuantumRegister(1, \"sender\")\n    receiver = QuantumRegister(1, \"receiver\")\n    measure = ClassicalRegister(2, \"measure\")\n    circuit = QuantumCircuit(sender, receiver, measure)\n    # Prepare ebit used for superdense coding\n    circuit.h(sender)\n    circuit.cx(sender, receiver)\n    circuit.barrier()\n    # sender's operations\n    if bitstring[1] == \"1\":\n        circuit.z(sender)\n    if bitstring[0] == \"1\":\n        circuit.x(sender)\n    circuit.barrier()\n    # receiver's actions\n    circuit.cx(sender, receiver)\n    circuit.h(sender)\n    circuit.measure(sender, measure[0])\n    circuit.measure(receiver, measure[1])\n    return circuit\n",
         "entry_point": "send_bits",
         "difficulty_scale": "intermediate",
@@ -505,7 +505,7 @@
     },
     {
         "task_id": "qiskitHumanEval/63",
-        "prompt": "Write a function to generate the key from the circuit and the sender's basis generated by the sender using BB84 protocol.\nYou must implement this using a function named `bb84_circuit_generate_key` with the following arguments: senders_basis, circuit.",
+        "prompt": "Write a function to generate the key from the circuit and the sender's basis generated by the sender using BB84 protocol. The receiver's basis is `numpy.random.randint(2, size=len(senders_basis))`, drawn from the already-seeded global `numpy.random` state, where 1 means measuring in the Hadamard basis; the returned key concatenates, in qubit order, the measured bit for every position where the sender's and receiver's bases match.\nYou must implement this using a function named `bb84_circuit_generate_key` with the following arguments: senders_basis, circuit.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit_aer import AerSimulator\nfrom qiskit_ibm_runtime import Sampler\nfrom numpy.random import randint\n\ndef bb84_circuit_generate_key(senders_basis, circuit):\n    n = len(senders_basis)\n    receivers_basis = randint(2, size=n)\n    for i in range(n):\n        if receivers_basis[i]:\n            circuit.h(i)\n    circuit.measure_all()\n    backend = AerSimulator()\n    sampler = Sampler(mode=backend)\n    result = sampler.run([circuit.reverse_bits()], shots=1).result()\n    count= result[0].data.meas.get_counts()\n    key = next(iter(count))\n    encryption_key = ''\n    for i in range(n):\n        if senders_basis[i] == receivers_basis[i]:\n             encryption_key += str(key[i])\n    return encryption_key\n",
         "entry_point": "bb84_circuit_generate_key",
         "difficulty_scale": "difficult",
@@ -849,7 +849,7 @@
     },
     {
         "task_id": "qiskitHumanEval/106",
-        "prompt": "Create two Quantum Circuits of 2 qubits. First quantum circuit should have a cx gate on qubits 0 and 1 and a T gate on qubit 0. The second one is the same but with an additional X gate on qubit 1. Convert the two quantum circuits into CNOTDihedral elements and return the composed circuit.\nYou must implement this using a function named `compose_cnot_dihedral` with no arguments.",
+        "prompt": "Create two Quantum Circuits of 2 qubits. First quantum circuit should have a cx gate on qubits 0 and 1 and a T gate on qubit 0. The second one is the same but with an additional X gate on qubit 1. Convert the two quantum circuits into CNOTDihedral elements and return the composed element as a CNOTDihedral.\nYou must implement this using a function named `compose_cnot_dihedral` with no arguments.",
         "canonical_solution": "from qiskit import QuantumCircuit\nfrom qiskit.quantum_info import CNOTDihedral\n\ndef compose_cnot_dihedral():\n    circ1 = QuantumCircuit(2)\n    # Apply gates\n    circ1.cx(0, 1)\n    circ1.t(0)\n    elem1 = CNOTDihedral(circ1)\n    circ2 = circ1.copy()\n    circ2.x(1)\n    elem2 = CNOTDihedral(circ2)\n    composed_elem = elem1.compose(elem2)\n    return composed_elem\n",
         "entry_point": "compose_cnot_dihedral",
         "difficulty_scale": "intermediate",
