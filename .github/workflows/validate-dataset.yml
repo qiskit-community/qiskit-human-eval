@@ -11,7 +11,7 @@ on:
       - 'dataset/**'
 
 jobs:
-  validate:
+  validate-dataset:
     runs-on: ubuntu-latest
     strategy:
       matrix:
