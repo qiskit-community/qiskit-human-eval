@@ -891,7 +891,7 @@
         "task_id": "qiskitHumanEval/111",
         "prompt": "from qiskit.circuit import QuantumCircuit, Parameter\ndef circuit():\n    \"\"\" Return an ansatz to create a quantum dataset of pure states distributed equally across the bloch sphere. Use minimum number of gates in the ansatz.\n    \"\"\"",
         "canonical_solution": "\n    qc = QuantumCircuit(1)\n    p1 = Parameter(\"p1\")\n    p2 = Parameter(\"p2\")\n    qc.rx(p1,0)\n    qc.ry(p2,0)\n    return qc\n",
-        "test": "def check(candidate):\n    assert candidate().num_parameters >= 2 , \"The circuit doesn't cover the bloch sphere.\"\n    assert candidate().num_parameters <= 5 , \"The circuit is too long\"\n",
+        "test": "def check(candidate):\n    import numpy as np\n    from qiskit.quantum_info import Statevector\n    qc = candidate()\n    assert qc.num_qubits == 1, f\"Expected 1 qubit, got {qc.num_qubits}\"\n    assert qc.num_parameters >= 2 , \"The circuit doesn't cover the bloch sphere.\"\n    assert qc.num_parameters <= 5 , \"The circuit is too long\"\n    paulis = [np.array([[0, 1], [1, 0]]), np.array([[0, -1j], [1j, 0]]), np.array([[1, 0], [0, -1]])]\n    rng = np.random.default_rng(1234)\n    bloch_vectors = []\n    for _ in range(1000):\n        sv = Statevector(qc.assign_parameters(rng.uniform(0, 2 * np.pi, qc.num_parameters))).data\n        bloch_vectors.append([np.real(np.vdot(sv, pauli @ sv)) for pauli in paulis])\n    bloch_vectors = np.array(bloch_vectors)\n    for axis in np.vstack([np.eye(3), -np.eye(3)]):\n        assert np.max(bloch_vectors @ axis) > 0.95, \"The circuit doesn't cover the bloch sphere.\"\n",
         "entry_point": "circuit",
         "difficulty_scale": "intermediate"
     },
