@@ -121,7 +121,7 @@
     },
     {
         "task_id": "qiskitHumanEval/15",
-        "prompt": "from qiskit_ibm_runtime.fake_provider import FakeBelemV2\nfrom qiskit_ibm_runtime import Sampler\nfrom qiskit_aer import AerSimulator\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef noisy_bell():\n    \"\"\" Transpile a bell circuit using pass manager with optimization level as 1, run it using Qiskit Sampler with the Aer simulator as backend and get the execution counts.\n    \"\"\"",
+        "prompt": "from qiskit_ibm_runtime.fake_provider import FakeBelemV2\nfrom qiskit_ibm_runtime import Sampler\nfrom qiskit_aer import AerSimulator\nfrom qiskit import QuantumCircuit\nfrom qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager\ndef noisy_bell():\n    \"\"\" Transpile a bell circuit using pass manager with optimization level as 1, run it using Qiskit Sampler with the fake noisy backend FakeBelemV2 as backend and get the execution counts.\n    \"\"\"",
         "canonical_solution": "\n    bell = QuantumCircuit(2)\n    bell.h(0)\n    bell.cx(0, 1)\n    bell.measure_all()\n    device_backend = FakeBelemV2()\n    simulator = AerSimulator.from_backend(device_backend)\n    pass_manager = generate_preset_pass_manager(optimization_level=1, backend=simulator)\n    bell_circ = pass_manager.run(bell)\n    sampler = Sampler(mode=simulator)\n    result = sampler.run([bell_circ], shots=1000).result()\n    counts = result[0].data.meas.get_counts()\n    return counts\n",
         "test": "def check(candidate):\n    result = candidate()\n    assert isinstance(result, dict), f\"Expected dict instance, got {type(result).__name__}\"\n    assert (result[\"00\"] + result[\"11\"]) != sum(result.values()), \"Expected noisy results with errors\"\n",
         "entry_point": "noisy_bell",
@@ -329,7 +329,7 @@
     },
     {
         "task_id": "qiskitHumanEval/41",
-        "prompt": "from qiskit.quantum_info.operators import Operator, Pauli\nimport numpy as np\ndef compose_op() -> Operator:\n    \"\"\" Compose XZ with a 3-qubit identity operator using the Operator and the Pauli 'YX' class in Qiskit. Return the operator instance.\n    \"\"\"",
+        "prompt": "from qiskit.quantum_info.operators import Operator, Pauli\nimport numpy as np\ndef compose_op() -> Operator:\n    \"\"\" Compose YX with a 3-qubit identity operator using the Operator and the Pauli 'YX' class in Qiskit. Return the operator instance.\n    \"\"\"",
         "canonical_solution": "\n    op = Operator(np.eye(2 ** 3))\n    YX = Operator(Pauli('YX'))\n    composition = op.compose(YX, qargs=[0, 2], front=True)\n    return composition\n",
         "test": "def check(candidate):\n    result = candidate()\n    op = Operator(np.eye(2 ** 3))\n    YX = Operator(Pauli('YX'))\n    expected = op.compose(YX, qargs=[0, 2], front=True)\n    assert(result == expected)\n",
         "entry_point": "compose_op",
