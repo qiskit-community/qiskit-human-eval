@@ -59,7 +59,7 @@
         "task_id": "qiskitHumanEval/7",
         "prompt": "from qiskit.circuit import QuantumCircuit, Parameter\ndef create_parametrized_gate():\n    \"\"\" Generate a 1 qubit QuantumCircuit with a parametrized Rx gate with parameter \"theta\".\n    \"\"\"",
         "canonical_solution": "\n    theta = Parameter(\"theta\")\n    quantum_circuit = QuantumCircuit(1)\n    quantum_circuit.rx(theta, 0)\n    return quantum_circuit\n",
-        "test": "def check(candidate):\n    circuit = candidate()\n    assert circuit.num_qubits == 1, f\"Expected 1 qubit, got {circuit.num_qubits}\"\n    assert circuit.data[0].operation.name == \"rx\", 'Expected operation name \"rx\"'\n    assert circuit.data[0].operation.params[0].name == \"theta\", 'Expected operation name \"theta\"'\n",
+        "test": "def check(candidate):\n    circuit = candidate()\n    assert circuit.num_qubits == 1, f\"Expected 1 qubit, got {circuit.num_qubits}\"\n    assert circuit.data[0].operation.name == \"rx\", 'Expected operation name \"rx\"'\n    assert circuit.data[0].operation.params[0].name == \"theta\", 'Expected parameter name \"theta\"'\n",
         "entry_point": "create_parametrized_gate",
         "difficulty_scale": "basic"
     },
@@ -67,7 +67,7 @@
         "task_id": "qiskitHumanEval/8",
         "prompt": "from qiskit.circuit import QuantumCircuit, Parameter\ndef rx_gate(value=None):\n    \"\"\" Return a 1-qubit QuantumCircuit with a parametrized Rx gate and parameter \"theta\". If value is not None, return the circuit with value assigned to theta.\n    \"\"\"",
         "canonical_solution": "\n    theta = Parameter(\"theta\")\n    quantum_circuit = QuantumCircuit(1)\n    quantum_circuit.rx(theta, 0)\n    if value is not None:\n        return quantum_circuit.assign_parameters({theta: value})\n    return quantum_circuit\n",
-        "test": "def check(candidate):\n    from qiskit.quantum_info import Operator\n    import math\n\n    circuit = candidate()\n    assert circuit.num_qubits == 1, f\"Expected 1 qubit, got {circuit.num_qubits}\"\n    assert circuit.data[0].operation.name == \"rx\", 'Expected operation name \"rx\"'\n    assert circuit.data[0].operation.params[0].name == \"theta\", 'Expected operation name \"theta\"'\n\n    candidate_circuit = candidate(value=math.pi * 3 / 4)\n    solution_circuit = QuantumCircuit(1)\n    solution_circuit.rx((math.pi * 3 / 4), 0)\n    assert Operator(solution_circuit).equiv(Operator(candidate_circuit)), \"Quantum states or operators are not equivalent\"\n",
+        "test": "def check(candidate):\n    from qiskit.quantum_info import Operator\n    import math\n\n    circuit = candidate()\n    assert circuit.num_qubits == 1, f\"Expected 1 qubit, got {circuit.num_qubits}\"\n    assert circuit.data[0].operation.name == \"rx\", 'Expected operation name \"rx\"'\n    assert circuit.data[0].operation.params[0].name == \"theta\", 'Expected parameter name \"theta\"'\n\n    candidate_circuit = candidate(value=math.pi * 3 / 4)\n    solution_circuit = QuantumCircuit(1)\n    solution_circuit.rx((math.pi * 3 / 4), 0)\n    assert Operator(solution_circuit).equiv(Operator(candidate_circuit)), \"Quantum states or operators are not equivalent\"\n",
         "entry_point": "rx_gate",
         "difficulty_scale": "basic"
     },
@@ -75,7 +75,7 @@
         "task_id": "qiskitHumanEval/9",
         "prompt": "from qiskit.circuit.library import efficient_su2\ndef create_efficientSU2():\n    \"\"\" Generate an EfficientSU2 circuit with 3 qubits, 1 reps and make insert_barriers true.\n    \"\"\"",
         "canonical_solution": "\n    circuit = efficient_su2(num_qubits=3, reps=1, insert_barriers=True)\n    return circuit\n",
-        "test": "def check(candidate):\n    from qiskit.circuit import QuantumCircuit\n    result = candidate()\n    solution = efficient_su2(num_qubits=3, reps=1, insert_barriers=True)\n    assert isinstance(result, QuantumCircuit), f\"Expected QuantumCircuit instance, got {type(result).__name__}\"\n    assert solution.num_qubits == result.num_qubits, f\"Expected {result.num_qubits} qubits, got {solution.num_qubits}\"\n    barrier_ops = [op for op in result if op.operation.name == 'barrier']\n    assert len(barrier_ops) > 0, f\"Circuit should contain barriers when insert_barriers=True. Expected length > 0, got {len(barrier_ops)}\"\n    # Check reps by comparing the number of parameters\n    assert result.num_parameters == solution.num_parameters, \"Unexpected result value\"\n",
+        "test": "def check(candidate):\n    from qiskit.circuit import QuantumCircuit\n    result = candidate()\n    solution = efficient_su2(num_qubits=3, reps=1, insert_barriers=True)\n    assert isinstance(result, QuantumCircuit), f\"Expected QuantumCircuit instance, got {type(result).__name__}\"\n    assert solution.num_qubits == result.num_qubits, f\"Expected {solution.num_qubits} qubits, got {result.num_qubits}\"\n    barrier_ops = [op for op in result if op.operation.name == 'barrier']\n    assert len(barrier_ops) > 0, f\"Circuit should contain barriers when insert_barriers=True. Expected length > 0, got {len(barrier_ops)}\"\n    # Check reps by comparing the number of parameters\n    assert result.num_parameters == solution.num_parameters, \"Unexpected result value\"\n",
         "entry_point": "create_efficientSU2",
         "difficulty_scale": "basic"
     },
